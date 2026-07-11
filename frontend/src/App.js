@@ -1,7 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import AdminReg from './mycomponents/Admin/AdminReg';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import MyNavbar from './mycomponents/GeneralNavbar';
 import ShowAdminList from './mycomponents/Admin/ShowAdminList';
 import MedicalReg from './mycomponents/Admin/MedicalReg';
 import ShowMedical from './mycomponents/Admin/ShowMedical';
@@ -11,8 +10,6 @@ import MedicineReg from './mycomponents/Medical/MedicineReg';
 import ShowMedicines from './mycomponents/Medical/ShowMedicines';
 import EditMedicine from './mycomponents/Medical/EditMedicine';
 import DeleteMedicine from './mycomponents/Medical/DeleteMedicine';
-import AdminNavbar from './mycomponents/Admin/AdmNav';
-import MedicalNavbar from './mycomponents/Medical/MedicalNavbar';
 import Home from './mycomponents/HomePage';
 import Login from './mycomponents/Login';
 import AdminHome from './mycomponents/Admin/AdminHome';
@@ -34,8 +31,16 @@ function App() {
   return (
     <Router>
 
-      {/* <AdminNavbar/> */}
-      {/* <MedicalNavbar/> */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="light"
+      />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -65,11 +70,6 @@ function App() {
 
       </Routes>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={1500}
-        theme="colored"
-      />
 
     </Router>
 

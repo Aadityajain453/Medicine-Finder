@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "./AdmNav";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // ─── Inline styles as constants ────────────────────────────────────────────────
@@ -368,7 +368,7 @@ const AdminHome = () => {
 
   const getPhoto = async () => {
     let result = await fetch(
-      'http://localhost:5000//get_profile_photo', {
+      'http://localhost:5000/get_profile_photo', {
       method: "post",
       body: JSON.stringify({ eml }),
       headers: {
@@ -493,16 +493,6 @@ const AdminHome = () => {
     <>
       <div style={styles.page}>
         <AdminNavbar />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="colored"
-        />
 
         <div style={styles.body}>
 
@@ -622,7 +612,7 @@ const AdminHome = () => {
                       cursor: "pointer",
                     }}
                   >
-                    Edit Photo
+                    Upload Photo
                   </button>
 
                   {photo && (
@@ -690,7 +680,6 @@ const AdminHome = () => {
             </div>
           </div>
         </div>
-
 
       </div>
     </>

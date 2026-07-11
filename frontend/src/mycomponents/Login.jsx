@@ -86,7 +86,7 @@ const Login = () => {
 
           setTimeout(() => {
             navigate("/adminhome", { replace: true });
-          }, 800);
+          }, 1000);
 
         } else if (ut === "medical") {
 

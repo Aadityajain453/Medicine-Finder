@@ -1,12 +1,18 @@
 // Connect to mongodb using mongoose 
+require("dotenv").config();
 
 const mongoose = require('mongoose');
+
 mongoose.set('strictQuery', false);
-mongoose.connect('mongodb://localhost:27017/', {
-    dbName: 'MedicalFinderData',
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, error => error ? console.log(error) : console.log('Connected to database successfully'));
+
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI)
+.then(() => {
+    console.log("Connected to MongoDB Atlas");
+})
+.catch((err) => {
+    console.log(err);
+});
 
 // Schema - It defines the all fields to store data in databse, and it is also known as model.
 
@@ -141,19 +147,19 @@ const PhotosSchema = new mongoose.Schema({
 // Create Collection
 
 const AdminData = mongoose.model('admindata', AdminSchema);
-AdminData.createIndexes();
+// AdminData.createIndexes();
 
 const LoginData = mongoose.model('logindata', LoginSchema);
-LoginData.createIndexes();
+// LoginData.createIndexes();
 
 const MedicalData = mongoose.model('medicaldata', MedicalSchema);
-MedicalData.createIndexes();
+// MedicalData.createIndexes();
 
 const MedicineData = mongoose.model('MedicineData', MedicineSchema);
-MedicineData.createIndexes();
+// MedicineData.createIndexes();
 
 const PhotoData = mongoose.model('photodata', PhotosSchema);
-PhotoData.createIndexes();
+// PhotoData.createIndexes();
 
 
 
@@ -171,7 +177,7 @@ app.use('/public/photos', express.static('public/photos'));
 
 app.use(cors());
 app.use(express.json());
-    
+
 app.use(cookieParser());
 
 //configure session
@@ -554,8 +560,8 @@ app.post('/deletemedicalstore', async (req, res) => {
         //  console.log("Received :" , req.body);
         const em = req.body.id;
 
-        const Medic = await MedicineData.deleteOne({MedicalEmail:em});
-        const MedDelete = await LoginData.deleteOne({Email:em});
+        const Medic = await MedicineData.deleteOne({ MedicalEmail: em });
+        const MedDelete = await LoginData.deleteOne({ Email: em });
         const MedicalDelete = await MedicalData.deleteOne({ Email: em }).then(function () {
             res.json({
                 mesg: 'Data deleted'
