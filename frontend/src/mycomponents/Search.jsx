@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MyNavbar from "./GeneralNavbar";
 
 const Search = () => {
@@ -8,28 +8,23 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  // Debounce Search Effect: Har keystroke par server par load nahi padega
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearchMedicine();
-    }, 300); // 300ms ka wait time
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [search]);
-
-  const fetchAllMedicines = async () => {
+  const fetchAllMedicines = useCallback(async () => {
     setLoading(true);
+
     try {
-      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showandsearchmedicines");
+      const response = await axios.get(
+        "https://medicine-finder-1-zwuu.onrender.com/showandsearchmedicines"
+      );
+
       setMedicines(response.data);
     } catch (error) {
       console.log("Error fetching medicines:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSearchMedicine = async () => {
+  const handleSearchMedicine = useCallback(async () => {
     if (search.trim() === "") {
       setSearched(false);
       fetchAllMedicines();
@@ -40,9 +35,12 @@ const Search = () => {
     setSearched(true);
 
     try {
-      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/searchmedicines", {
-        search: search.trim(),
-      });
+      const response = await axios.post(
+        "https://medicine-finder-1-zwuu.onrender.com/searchmedicines",
+        {
+          search: search.trim(),
+        }
+      );
 
       setMedicines(response.data);
     } catch (error) {
@@ -50,7 +48,16 @@ const Search = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, fetchAllMedicines]);
+
+  // Debounce Search Effect
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearchMedicine();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, handleSearchMedicine]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -60,6 +67,7 @@ const Search = () => {
 
   const handleInputChange = (e) => {
     const value = e.target.value;
+
     setSearch(value);
 
     if (value.trim() === "") {
@@ -78,9 +86,11 @@ const Search = () => {
   };
 
   const getTypeStyle = (type) =>
-    typeColors[type] || { bg: "#f1f5f9", text: "#334155", dot: "#64748b" };
-
-
+    typeColors[type] || {
+      bg: "#f1f5f9",
+      text: "#334155",
+      dot: "#64748b",
+    };
 
   return (
     <>
@@ -601,7 +611,10 @@ const Search = () => {
                   />
                 </div>
 
-                <button className="mf-btn" onClick={handleSearchMedicine}>
+                <button
+                  className="mf-btn"
+                  onClick={handleSearchMedicine}
+                >
                   Search
                 </button>
               </div>
@@ -626,7 +639,9 @@ const Search = () => {
             <div className="mf-empty">
               <div className="mf-empty-icon">🔬</div>
 
-              <h3>{searched ? "No medicine found" : "Start your search"}</h3>
+              <h3>
+                {searched ? "No medicine found" : "Start your search"}
+              </h3>
 
               <p>
                 {searched
@@ -645,7 +660,6 @@ const Search = () => {
               <div className="mf-grid">
                 {Medicines.map((medicine) => {
                   const typeStyle = getTypeStyle(medicine.MedicineType);
-
 
                   return (
                     <div className="mf-card" key={medicine._id}>
@@ -666,15 +680,16 @@ const Search = () => {
                               className="mf-dot"
                               style={{ background: typeStyle.dot }}
                             ></span>
+
                             {medicine.MedicineType}
                           </span>
                         </div>
-
                       </div>
 
                       <div className="mf-card-body">
                         <div className="mf-row">
                           <span className="mf-label">Company</span>
+
                           <span className="mf-value">
                             {medicine.MedicineCompany}
                           </span>
@@ -682,6 +697,7 @@ const Search = () => {
 
                         <div className="mf-row">
                           <span className="mf-label">License No.</span>
+
                           <span className="mf-value">
                             {medicine.LicenseNumber}
                           </span>
@@ -689,6 +705,7 @@ const Search = () => {
 
                         <div className="mf-row">
                           <span className="mf-label">Unit Price</span>
+
                           <span className="mf-value mf-price">
                             ₹{medicine.UnitPrice}
                           </span>
@@ -696,18 +713,24 @@ const Search = () => {
 
                         <div className="mf-row">
                           <span className="mf-label">Description</span>
+
                           <span className="mf-value">
                             {medicine.Description}
                           </span>
                         </div>
 
-                        {/* Store information array loop */}
-                        {medicine.medical && medicine.medical.length > 0 ? (
+                        {medicine.medical &&
+                        medicine.medical.length > 0 ? (
                           <>
-                            <div className="mf-store-title">Available At</div>
+                            <div className="mf-store-title">
+                              Available At
+                            </div>
 
                             {medicine.medical.map((store, index) => (
-                              <div className="mf-store-card" key={index}>
+                              <div
+                                className="mf-store-card"
+                                key={index}
+                              >
                                 <div className="mf-store-name">
                                   🏪 {store.Medicalname}
                                 </div>
@@ -727,7 +750,10 @@ const Search = () => {
                             ))}
                           </>
                         ) : (
-                          <div className="mf-store-title" style={{ color: '#94a3b8' }}>
+                          <div
+                            className="mf-store-title"
+                            style={{ color: "#94a3b8" }}
+                          >
                             Store info not linked
                           </div>
                         )}
