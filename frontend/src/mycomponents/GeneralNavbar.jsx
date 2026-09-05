@@ -1,8 +1,8 @@
-import React from "react";
+
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
+
 import { Link, useLocation } from "react-router-dom"; // 1. Added useLocation hook
 
 function MyNavbar() {
@@ -25,16 +25,16 @@ function MyNavbar() {
 
   const handleHover = (e, path) => {
     // Hover logic doesn't override active link styling background completely
-    e.currentTarget.style.background = isActive(path) 
-      ? "rgba(34, 197, 94, 0.2)" 
+    e.currentTarget.style.background = isActive(path)
+      ? "rgba(34, 197, 94, 0.2)"
       : "rgba(255, 255, 255, 0.08)";
     e.currentTarget.style.color = isActive(path) ? "#22c55e" : "#ffffff";
     e.currentTarget.style.transform = "translateY(-1px)";
   };
 
   const handleLeave = (e, path) => {
-    e.currentTarget.style.background = isActive(path) 
-      ? "rgba(34, 197, 94, 0.12)" 
+    e.currentTarget.style.background = isActive(path)
+      ? "rgba(34, 197, 94, 0.12)"
       : "transparent";
     e.currentTarget.style.color = isActive(path) ? "#22c55e" : "#cbd5e1";
     e.currentTarget.style.transform = "translateY(0)";

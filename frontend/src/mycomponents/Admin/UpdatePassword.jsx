@@ -18,21 +18,27 @@ const UpdatePassword = () => {
     const resultTimer = useRef(null);
 
     useEffect(() => {
-        checkUser();
-        return () => clearTimeout(resultTimer.current);
-    }, []);
+        const checkUser = async () => {
+            try {
+                const response = await axios.get(
+                    "https://medicine-finder-1-zwuu.onrender.com/isUser"
+                );
 
-    const checkUser = async () => {
-        try {
-            const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
-            const data = response.data;
-            if (data.usertype === "nouser" || data.usertype !== "admin") {
-                navigate("/auth_error", { replace: true });
+                const data = response.data;
+
+                if (data.usertype === "nouser" || data.usertype !== "admin") {
+                    navigate("/auth_error", { replace: true });
+                }
+            } catch (error) {
+                console.log(error);
             }
-        } catch (error) {
-            console.log(error);
-        }
-    };
+        };
+
+        checkUser();
+
+        return () => clearTimeout(resultTimer.current);
+    }, [navigate]);
+    
 
     const calcStrength = (val) => {
         let score = 0;

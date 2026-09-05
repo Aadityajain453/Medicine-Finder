@@ -15,13 +15,10 @@ const DeleteMedicine = () => {
     const [description, setDescription] = useState("");
     const [register, setRegister] = useState("");
 
-    useEffect(
-        () => {
-            checkUser();
-            displayDataForDelete();
-        },
-        []
-    );
+    useEffect(() => {
+        checkUser();
+        displayDataForDelete();
+    }, [id]);
 
     const checkUser = async () => {
         try {
@@ -64,7 +61,7 @@ const DeleteMedicine = () => {
 
     const handleDeleteMedicine = async () => {
         let ConfirmDelete = window.confirm("Are you sure you want to permanently delete this medicine?");
-        if (ConfirmDelete == true) {
+        if (ConfirmDelete === true) {
 
             try {
                 const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/deletemedicinedata', {
@@ -104,7 +101,7 @@ const DeleteMedicine = () => {
     }
     return (
         <>
-        <MedicalNavbar/>
+            <MedicalNavbar />
             <div
                 style={{
                     minHeight: "100vh",
@@ -141,10 +138,10 @@ const DeleteMedicine = () => {
                             {register && (
                                 <div
                                     className={`alert text-center fw-semibold ${register.includes("successfully")
-                                            ? "alert-success"
-                                            : register.includes("cancelled")
-                                                ? "alert-warning"
-                                                : "alert-danger"
+                                        ? "alert-success"
+                                        : register.includes("cancelled")
+                                            ? "alert-warning"
+                                            : "alert-danger"
                                         }`}
                                 >
                                     {register}
