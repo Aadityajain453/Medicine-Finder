@@ -73,7 +73,7 @@ const EditMedicine = () => {
 
             console.log(result.message);
 
-            if (result.message == 'Data updated') {
+            if (result.message === 'Data updated') {
                 setRegister('Data updated successfully');
                 setTimeout(() => {
                     setRegister("")
@@ -82,7 +82,7 @@ const EditMedicine = () => {
                 navigate('/showmedicine', { replace: true });
 
             }
-            else if (result.message == 'Data not updated') {
+            else if (result.message === 'Data not updated') {
                 setRegister('Data is not updated');
             }
 
@@ -92,19 +92,6 @@ const EditMedicine = () => {
     }
 
 
-    const inputBox = {
-        background: "rgba(255,255,255,0.08)",
-        color: "white",
-        border: "1px solid rgba(255,255,255,0.16)",
-        borderRadius: "16px",
-        padding: "15px 18px",
-    };
-
-    const labelBox = {
-        color: "#cbd5e1",
-        fontWeight: "600",
-        marginBottom: "8px",
-    };
 
     return (
         <>

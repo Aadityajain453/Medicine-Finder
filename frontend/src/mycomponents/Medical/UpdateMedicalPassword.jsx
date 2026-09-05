@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MedicalNavbar from "./MedicalNavbar";
 
@@ -242,11 +242,9 @@ const UpdateMedicalPassw = () => {
   const newRef = useRef();
   const confirmRef = useRef();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
 
-  const checkUser = async () => {
+
+  const checkUser = useCallback(async () => {
     try {
       const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       const data = response.data;
@@ -257,7 +255,11 @@ const UpdateMedicalPassw = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const showValidationMsg = (text, ref) => {
     setStatusMsg({ type: "danger", text });
@@ -321,7 +323,7 @@ const UpdateMedicalPassw = () => {
 
       <div className="pwd-page">
         <div className="pwd-card">
-          
+
           {/* ── Sidebar ── */}
           <div className="pwd-sidebar">
             <div>
@@ -330,7 +332,7 @@ const UpdateMedicalPassw = () => {
               </div>
               <h2>Security Settings</h2>
               <p>Keep your account secure by updating your password regularly.</p>
-              
+
               <div className="pwd-tips">
                 <div className="pwd-tip-item">
                   <i className="ti ti-shield-check" /> Standard encryption protects your updates.
