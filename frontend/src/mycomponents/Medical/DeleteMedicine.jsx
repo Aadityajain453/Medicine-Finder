@@ -16,9 +16,10 @@ const DeleteMedicine = () => {
     const [register, setRegister] = useState("");
 
     useEffect(() => {
-        checkUser();
-        displayDataForDelete();
-    }, [id]);
+    checkUser();
+    displayDataForDelete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [id]);
 
     const checkUser = async () => {
         try {

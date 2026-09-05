@@ -21,8 +21,9 @@ const EditMedicine = () => {
         () => {
             checkUser();
             loadMedicineForEdit();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         },
-        []
+        [id]
     );
 
     const checkUser = async () => {
@@ -95,7 +96,7 @@ const EditMedicine = () => {
 
     return (
         <>
-        <MedicalNavbar/>
+            <MedicalNavbar />
             <div
                 className="container-fluid py-5"
                 style={{

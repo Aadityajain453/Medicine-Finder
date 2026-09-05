@@ -348,12 +348,12 @@ const PAGE_CSS = `
 const field = (obj, keys, fallback = "—") =>
   keys.map(k => obj?.[k]).find(v => v != null) ?? fallback;
 
-const getMedicalName   = m => field(m, ["Medicalname",    "medicalname"],    "No name");
-const getOwnerName     = m => field(m, ["OwnerName",      "ownername"],      "No owner");
-const getContact       = m => field(m, ["Contact",        "contact"],        "No contact");
-const getLicenceNumber = m => field(m, ["LicenceNumber",  "licno"],          "No licence");
-const getEmail         = m => field(m, ["Email",          "email"],          "No email");
-const getAddress       = m => field(m, ["Address",        "address"],        "No address");
+const getMedicalName = m => field(m, ["Medicalname", "medicalname"], "No name");
+const getOwnerName = m => field(m, ["OwnerName", "ownername"], "No owner");
+const getContact = m => field(m, ["Contact", "contact"], "No contact");
+const getLicenceNumber = m => field(m, ["LicenceNumber", "licno"], "No licence");
+const getEmail = m => field(m, ["Email", "email"], "No email");
+const getAddress = m => field(m, ["Address", "address"], "No address");
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 const Icon = ({ name, size = 14, style = {} }) => (
@@ -374,37 +374,50 @@ const DetailBox = ({ icon, label, value, full = false }) => (
 const ShowMedical = () => {
   const navigate = useNavigate();
 
-  const [medicalList,     setMedicalList]     = useState([]);
+  const [medicalList, setMedicalList] = useState([]);
   const [selectedMedical, setSelectedMedical] = useState(null);
-  const [loading,         setLoading]         = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    verifyAndLoad();
-  }, []);
+    const verifyAndLoad = async () => {
+      try {
+        const { data } = await axios.get(
+          "https://medicine-finder-1-zwuu.onrender.com/isUser"
+        );
 
-  const verifyAndLoad = async () => {
-    try {
-      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
-      if (!data.usertype || data.usertype === "nouser" || data.usertype !== "admin") {
+        if (
+          !data.usertype ||
+          data.usertype === "nouser" ||
+          data.usertype !== "admin"
+        ) {
+          navigate("/auth_error", { replace: true });
+          return;
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
         navigate("/auth_error", { replace: true });
         return;
       }
-    } catch (err) {
-      console.error("Auth check failed:", err);
-      navigate("/auth_error", { replace: true });
-      return;
-    }
 
-    try {
-      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showmedical");
-      setMedicalList(data);
-      if (data.length > 0) setSelectedMedical(data[0]);
-    } catch (err) {
-      console.error("Failed to fetch medical list:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const { data } = await axios.get(
+          "https://medicine-finder-1-zwuu.onrender.com/showmedical"
+        );
+
+        setMedicalList(data);
+
+        if (data.length > 0) {
+          setSelectedMedical(data[0]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch medical list:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyAndLoad();
+  }, [navigate]);
 
   const selectedEmail = getEmail(selectedMedical);
 
@@ -429,7 +442,7 @@ const ShowMedical = () => {
               <div className="sm-empty-sidebar">No stores found.</div>
             ) : (
               medicalList.map(m => {
-                const email    = getEmail(m);
+                const email = getEmail(m);
                 const isActive = selectedEmail === email;
                 return (
                   <div
@@ -497,11 +510,11 @@ const ShowMedical = () => {
 
                   {/* Detail grid */}
                   <div className="sm-detail-grid">
-                    <DetailBox icon="user"         label="Owner name"     value={getOwnerName(selectedMedical)}     />
-                    <DetailBox icon="phone"        label="Contact"        value={getContact(selectedMedical)}       />
+                    <DetailBox icon="user" label="Owner name" value={getOwnerName(selectedMedical)} />
+                    <DetailBox icon="phone" label="Contact" value={getContact(selectedMedical)} />
                     <DetailBox icon="shield-check" label="Licence number" value={getLicenceNumber(selectedMedical)} />
-                    <DetailBox icon="mail"         label="Email"          value={getEmail(selectedMedical)}         />
-                    <DetailBox icon="map-pin"      label="Address"        value={getAddress(selectedMedical)} full  />
+                    <DetailBox icon="mail" label="Email" value={getEmail(selectedMedical)} />
+                    <DetailBox icon="map-pin" label="Address" value={getAddress(selectedMedical)} full />
                   </div>
                 </div>
 

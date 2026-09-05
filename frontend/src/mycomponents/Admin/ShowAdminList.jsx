@@ -415,37 +415,43 @@ const ShowAdminList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await axios.get(
+          "https://medicine-finder-1-zwuu.onrender.com/isUser"
+        );
+
+        const data = response.data;
+
+        if (data.usertype === "nouser" || data.usertype !== "admin") {
+          navigate("/auth_error", { replace: true });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const displayAdminData = async () => {
+      try {
+        const response = await axios.get(
+          "https://medicine-finder-1-zwuu.onrender.com/showAdminsDetails"
+        );
+
+        setAdminList(response.data);
+
+        if (response.data.length > 0) {
+          setSelectedAdmin(response.data[0]);
+        }
+      } catch (error) {
+        console.log("Error fetching admins:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     checkUser();
     displayAdminData();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
-      const data = response.data;
-
-      if (data.usertype === "nouser" || data.usertype !== "admin") {
-        navigate("/auth_error", { replace: true });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const displayAdminData = async () => {
-    try {
-      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showAdminsDetails");
-      setAdminList(response.data);
-
-      if (response.data.length > 0) {
-        setSelectedAdmin(response.data[0]);
-      }
-    } catch (error) {
-      console.log("Error fetching admins:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [navigate]);
 
   return (
     <>
@@ -454,7 +460,7 @@ const ShowAdminList = () => {
 
       <div className="directory-workspace">
         <div className="split-screen-layout">
-          
+
           {/* LEFT SIDE: MASTER INDEX LISTING PANE */}
           <aside className="master-pane">
             <div className="pane-header">
@@ -485,9 +491,8 @@ const ShowAdminList = () => {
                   <div
                     key={admin.Email}
                     onClick={() => setSelectedAdmin(admin)}
-                    className={`custom-list-item ${
-                      selectedAdmin?.Email === admin.Email ? "is-selected" : ""
-                    }`}
+                    className={`custom-list-item ${selectedAdmin?.Email === admin.Email ? "is-selected" : ""
+                      }`}
                   >
                     <div className="item-avatar">
                       {admin.Name?.charAt(0).toUpperCase()}
@@ -506,7 +511,7 @@ const ShowAdminList = () => {
           <main className="detail-pane">
             {selectedAdmin ? (
               <div className="detail-card-wrapper">
-                
+
                 {/* CINEMATIC PROFILE BANNER */}
                 <div className="profile-hero-banner">
                   <div className="hero-flex-container">
@@ -526,7 +531,7 @@ const ShowAdminList = () => {
                 {/* INFORMATION PRESENTATION TILES */}
                 <div className="detail-body-content">
                   <div className="section-label-header">Cryptographic & Contact Properties</div>
-                  
+
                   <div className="info-asymmetric-grid">
                     <div className="info-tile-block">
                       <div className="tile-meta-label">
