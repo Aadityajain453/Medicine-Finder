@@ -248,9 +248,10 @@ const DeleteMedical = () => {
   const [isLoading,  setIsLoading]  = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    verifyAndLoad();
-  }, []);
+ useEffect(() => {
+  verifyAndLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [id]);
 
   // ── Auth + data fetch ──
   const verifyAndLoad = async () => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AdminNavbar from "./AdmNav";
 import { useNavigate } from "react-router-dom";
 
@@ -286,13 +286,12 @@ const AdminReg = () => {
   const [confirmpassword, setConfirmpassword] = useState("");
   const [login, setLogin] = useState("");
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     try {
-      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
+      const response = await axios.get(
+        "https://medicine-finder-1-zwuu.onrender.com/isUser"
+      );
+
       const data = response.data;
 
       if (data.usertype === "nouser" || data.usertype !== "admin") {
@@ -301,7 +300,11 @@ const AdminReg = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const handleAdminRegistration = async () => {
     if (name === "") {
@@ -366,7 +369,7 @@ const AdminReg = () => {
 
       <div className="admin-page">
         <div className="admin-container">
-          
+
           {/* PORTAL TOP HEADER */}
           <header className="portal-header">
             <div className="portal-title">
@@ -380,13 +383,13 @@ const AdminReg = () => {
 
           {/* TWO-COLUMN LAYOUT STRUCTURE */}
           <main className="portal-grid">
-            
+
             {/* SIDEBAR ASYMMETRIC CONTENT BLOCK */}
             <section className="sidebar-info">
               <div className="info-panel-card">
                 <h3>Privilege Scope</h3>
                 <p>
-                  Newly registered accounts inherit structural administrative rights over 
+                  Newly registered accounts inherit structural administrative rights over
                   the core data engine, verification features, and internal records logs.
                 </p>
               </div>
@@ -476,10 +479,10 @@ const AdminReg = () => {
                 <div
                   className={
                     login.includes("fill") ||
-                    login.includes("match") ||
-                    login.includes("already") ||
-                    login.includes("wrong") ||
-                    login.includes("Something")
+                      login.includes("match") ||
+                      login.includes("already") ||
+                      login.includes("wrong") ||
+                      login.includes("Something")
                       ? "status-box status-error"
                       : "status-box status-success"
                   }

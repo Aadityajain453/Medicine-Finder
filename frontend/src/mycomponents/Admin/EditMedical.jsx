@@ -218,9 +218,10 @@ const UpdateMedical = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    verifyUser();
-    fetchMedicalData();
-  }, []);
+  verifyUser();
+  fetchMedicalData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [id]);
 
   // ── Auth check ──
   const verifyUser = async () => {

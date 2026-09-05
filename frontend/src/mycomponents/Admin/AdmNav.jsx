@@ -2,7 +2,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -140,7 +140,7 @@ const Icon = ({ name, style }) => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 function AdminNavbar({ adminName = "Admin" }) {
-  const navigate = useNavigate();
+ 
   const handleLogout = async () => {
     const result = await Swal.fire({
       title: "Logout?",
@@ -167,8 +167,7 @@ function AdminNavbar({ adminName = "Admin" }) {
     }
   };
 
-  const navLinkStyle = ({ isActive }) =>
-    `adm-nav-link${isActive ? " active" : ""}`;
+ 
 
   const initial = adminName.charAt(0).toUpperCase();
 

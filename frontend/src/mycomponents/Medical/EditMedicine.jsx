@@ -1,6 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MedicalNavbar from "./MedicalNavbar";
 
@@ -17,21 +16,16 @@ const EditMedicine = () => {
     const [description, setDescription] = useState("");
     const [register, setRegister] = useState("");
 
-    useEffect(
-        () => {
-            checkUser();
-            loadMedicineForEdit();
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        },
-        [id]
-    );
 
-    const checkUser = async () => {
+    const checkUser = useCallback(async () => {
         try {
-            const response = await axios.get('https://medicine-finder-1-zwuu.onrender.com/isUser');
+            const response = await axios.get(
+                'https://medicine-finder-1-zwuu.onrender.com/isUser'
+            );
 
             const data = response.data;
             console.log(data);
+
             if (data.usertype === "nouser") {
                 navigate("/auth_error", { replace: true });
             }
@@ -42,14 +36,18 @@ const EditMedicine = () => {
         } catch (error) {
             console.log(error);
         }
-    }
+    }, [navigate]);
 
-    const loadMedicineForEdit = async () => {
+    const loadMedicineForEdit = useCallback(async () => {
         try {
-            const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/showEditMedicine', { id });
+            const response = await axios.post(
+                'https://medicine-finder-1-zwuu.onrender.com/showEditMedicine',
+                { id }
+            );
 
             let result = response.data;
             console.log(result);
+
             if (result) {
                 setMedicineName(result.MedicineName);
                 setMedicineType(result.MedicineType);
@@ -62,7 +60,13 @@ const EditMedicine = () => {
         } catch (error) {
             console.log(error);
         }
-    }
+    }, [id]);
+
+    useEffect(() => {
+        checkUser();
+        loadMedicineForEdit();
+    }, [checkUser, loadMedicineForEdit]);
+
 
     const handleEditMedicine = async () => {
         try {

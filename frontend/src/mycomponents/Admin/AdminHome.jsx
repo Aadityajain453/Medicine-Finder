@@ -349,18 +349,19 @@ const AdminHome = () => {
   const [loading, setLoading] = useState(true);
 
   const [preview, setPreview] = useState(null);
-  const [file, setFile] = useState();
+  
   const [photo, setPhoto] = useState(null);
 
   useEffect(() => {
     verifyAndLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   useEffect(() => {
     if (admin?.Email) {
       getPhoto();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin]);
 
 
@@ -384,34 +385,6 @@ const AdminHome = () => {
     }
   };
 
-
-  const uploadfile = async () => {
-
-    if (!file) {
-      toast.warning("Please select an image");
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("file", file);
-    formData.append("Email", eml);
-
-    try {
-
-      const res = await axios.post(
-        "https://medicine-finder-1-zwuu.onrender.com/uploadfile",
-        formData
-      );
-
-      setPhoto(res.data.filename);
-
-      toast.success("Photo uploaded successfully");
-
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
 
 
@@ -527,7 +500,7 @@ const AdminHome = () => {
 
                   if (selectedFile) {
                     setPreview(URL.createObjectURL(selectedFile));
-                    setFile(selectedFile);
+                    
                     uploadInstant(selectedFile);
                   }
                 }}
