@@ -421,7 +421,7 @@ const ShowAdminList = () => {
 
   const checkUser = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/isUser");
+      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       const data = response.data;
 
       if (data.usertype === "nouser" || data.usertype !== "admin") {
@@ -434,7 +434,7 @@ const ShowAdminList = () => {
 
   const displayAdminData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/showAdminsDetails");
+      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showAdminsDetails");
       setAdminList(response.data);
 
       if (response.data.length > 0) {

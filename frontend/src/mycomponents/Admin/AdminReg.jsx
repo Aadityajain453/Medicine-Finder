@@ -292,7 +292,7 @@ const AdminReg = () => {
 
   const checkUser = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/isUser");
+      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       const data = response.data;
 
       if (data.usertype === "nouser" || data.usertype !== "admin") {
@@ -327,7 +327,7 @@ const AdminReg = () => {
       confpassRef.current.focus();
     } else {
       try {
-        const response = await axios.post("http://localhost:5000/getadminreg", {
+        const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/getadminreg", {
           name,
           address,
           contact,

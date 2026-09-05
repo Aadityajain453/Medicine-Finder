@@ -25,7 +25,7 @@ const DeleteMedicine = () => {
 
     const checkUser = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/isUser');
+            const response = await axios.get('https://medicine-finder-1-zwuu.onrender.com/isUser');
 
             const data = response.data;
             console.log(data);
@@ -43,7 +43,7 @@ const DeleteMedicine = () => {
 
     const displayDataForDelete = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/getmedicinedata', { id });
+            const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/getmedicinedata', { id });
 
             let result = response.data;
             console.log(result);
@@ -67,7 +67,7 @@ const DeleteMedicine = () => {
         if (ConfirmDelete == true) {
 
             try {
-                const response = await axios.post('http://localhost:5000/deletemedicinedata', {
+                const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/deletemedicinedata', {
                     id
                 });
 

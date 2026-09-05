@@ -27,7 +27,7 @@ const EditMedicine = () => {
 
     const checkUser = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/isUser');
+            const response = await axios.get('https://medicine-finder-1-zwuu.onrender.com/isUser');
 
             const data = response.data;
             console.log(data);
@@ -45,7 +45,7 @@ const EditMedicine = () => {
 
     const loadMedicineForEdit = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/showEditMedicine', { id });
+            const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/showEditMedicine', { id });
 
             let result = response.data;
             console.log(result);
@@ -65,7 +65,7 @@ const EditMedicine = () => {
 
     const handleEditMedicine = async () => {
         try {
-            const Response = await axios.post('http://localhost:5000/editandupdatemedicines', {
+            const Response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/editandupdatemedicines', {
                 medicinename, medicinetype, medicinecompany, licensenumber, unitprice, description, id
             });
 

@@ -384,7 +384,7 @@ const ShowMedical = () => {
 
   const verifyAndLoad = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/isUser");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       if (!data.usertype || data.usertype === "nouser" || data.usertype !== "admin") {
         navigate("/auth_error", { replace: true });
         return;
@@ -396,7 +396,7 @@ const ShowMedical = () => {
     }
 
     try {
-      const { data } = await axios.get("http://localhost:5000/showmedical");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showmedical");
       setMedicalList(data);
       if (data.length > 0) setSelectedMedical(data[0]);
     } catch (err) {

@@ -519,7 +519,7 @@ const MedicalReg = () => {
     try {
 
       const { data } = await axios.get(
-        "http://localhost:5000/isUser"
+        "https://medicine-finder-1-zwuu.onrender.com/isUser"
       );
 
       if (
@@ -610,7 +610,7 @@ const MedicalReg = () => {
     try {
 
       const { data } = await axios.post(
-        "http://localhost:5000/getmedicalreg",
+        "https://medicine-finder-1-zwuu.onrender.com/getmedicalreg",
         {
           medicalname,
           ownername,

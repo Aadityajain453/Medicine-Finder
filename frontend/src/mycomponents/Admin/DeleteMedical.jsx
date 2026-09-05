@@ -255,7 +255,7 @@ const DeleteMedical = () => {
   // ── Auth + data fetch ──
   const verifyAndLoad = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/isUser");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       if (!data.usertype || data.usertype === "nouser" || data.usertype !== "admin") {
         navigate("/auth_error", { replace: true });
         return;
@@ -267,7 +267,7 @@ const DeleteMedical = () => {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:5000/showmedicaldata", { id });
+      const { data } = await axios.post("https://medicine-finder-1-zwuu.onrender.com/showmedicaldata", { id });
       if (data) {
         setMedical(data);
       } else {
@@ -292,7 +292,7 @@ const DeleteMedical = () => {
     setStatusMsg({ type: "", text: "" });
 
     try {
-      const { data } = await axios.post("http://localhost:5000/deletemedicalstore", { id });
+      const { data } = await axios.post("https://medicine-finder-1-zwuu.onrender.com/deletemedicalstore", { id });
 
       if (data.mesg === "Data deleted") {
         setStatusMsg({ type: "success", text: "Medical store deleted successfully." });

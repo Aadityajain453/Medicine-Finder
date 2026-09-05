@@ -368,7 +368,7 @@ const AdminHome = () => {
 
   const getPhoto = async () => {
     let result = await fetch(
-      'http://localhost:5000/get_profile_photo', {
+      'https://medicine-finder-1-zwuu.onrender.com/get_profile_photo', {
       method: "post",
       body: JSON.stringify({ eml }),
       headers: {
@@ -400,7 +400,7 @@ const AdminHome = () => {
     try {
 
       const res = await axios.post(
-        "http://localhost:5000/uploadfile",
+        "https://medicine-finder-1-zwuu.onrender.com/uploadfile",
         formData
       );
 
@@ -425,7 +425,7 @@ const AdminHome = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/uploadfile",
+        "https://medicine-finder-1-zwuu.onrender.com/uploadfile",
         formData
       );
 
@@ -444,7 +444,7 @@ const AdminHome = () => {
   const deletePhoto = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/delete_admin_photo",
+        "https://medicine-finder-1-zwuu.onrender.com/delete_admin_photo",
         { Email: eml }
       );
 
@@ -460,7 +460,7 @@ const AdminHome = () => {
 
   const verifyAndLoad = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/isUser");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
 
       if (!data.usertype || data.usertype === "nouser" || data.usertype !== "admin") {
         navigate("/auth_error", { replace: true });
@@ -477,7 +477,7 @@ const AdminHome = () => {
 
   const fetchAdminProfile = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/getAdminprofile");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/getAdminprofile");
       setAdmin(data);
     } catch (err) {
       toast.error("Failed to load profile");
@@ -545,7 +545,7 @@ const AdminHome = () => {
                       window.open(
                         preview
                           ? preview
-                          : `http://localhost:5000/public/photos/${photo}`,
+                          : `https://medicine-finder-1-zwuu.onrender.com/public/photos/${photo}`,
                         "_blank"
                       );
                     }
@@ -556,7 +556,7 @@ const AdminHome = () => {
                       src={
                         preview
                           ? preview
-                          : `http://localhost:5000/public/photos/${photo}`
+                          : `https://medicine-finder-1-zwuu.onrender.com/public/photos/${photo}`
                       }
                       alt="Profile"
                       style={{

@@ -498,7 +498,7 @@ const MedicalNavbar = () => {
   
 const confirmLogout = async () => {
   try {
-    await axios.get("http://localhost:5000/logout");
+    await axios.get("https://medicine-finder-1-zwuu.onrender.com/logout");
 
     setShowLogoutModal(false);
 

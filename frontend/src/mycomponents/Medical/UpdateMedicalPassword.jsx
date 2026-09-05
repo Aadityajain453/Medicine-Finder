@@ -248,7 +248,7 @@ const UpdateMedicalPassw = () => {
 
   const checkUser = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/isUser");
+      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       const data = response.data;
 
       if (data.usertype === "nouser" || data.usertype !== "medical") {
@@ -285,7 +285,7 @@ const UpdateMedicalPassw = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/updateMedicalPassword", {
+      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/updateMedicalPassword", {
         oldpassword,
         newpassword,
         confirmnewpassword,

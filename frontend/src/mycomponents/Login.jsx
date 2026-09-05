@@ -63,7 +63,7 @@ const Login = () => {
       setLoading(true);
       setLogin("");
 
-      const response = await axios.post("http://localhost:5000/check_login", {
+      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/check_login", {
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });

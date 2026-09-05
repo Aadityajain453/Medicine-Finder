@@ -40,7 +40,7 @@ const MedicineReg = () => {
             try {
 
                 const response = await axios.get(
-                    "http://localhost:5000/isUser"
+                    "https://medicine-finder-1-zwuu.onrender.com/isUser"
                 );
 
                 const data = response.data;
@@ -115,7 +115,7 @@ const MedicineReg = () => {
             try {
 
                 const response = await axios.post(
-                    "http://localhost:5000/getmedicinereg",
+                    "https://medicine-finder-1-zwuu.onrender.com/getmedicinereg",
                     {
                         medicinename,
                         medicinetype,

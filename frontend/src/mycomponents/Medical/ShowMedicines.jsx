@@ -164,13 +164,13 @@ const ShowMedicines = () => {
     useEffect(() => {
         const initializePage = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/isUser");
+                const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
                 const data = response.data;
                 if (data.usertype === "nouser" || data.usertype !== "medical") {
                     navigate("/auth_error", { replace: true });
                     return;
                 }
-                const medicineResponse = await axios.get("http://localhost:5000/getMedicinesData");
+                const medicineResponse = await axios.get("https://medicine-finder-1-zwuu.onrender.com/getMedicinesData");
                 setMedicineList(medicineResponse.data || []);
             } catch (error) {
                 console.log(error);

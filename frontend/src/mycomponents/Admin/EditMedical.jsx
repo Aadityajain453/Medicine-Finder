@@ -225,7 +225,7 @@ const UpdateMedical = () => {
   // ── Auth check ──
   const verifyUser = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/isUser");
+      const { data } = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
       if (!data.usertype || data.usertype === "nouser" || data.usertype !== "admin") {
         navigate("/auth_error", { replace: true });
       }
@@ -238,7 +238,7 @@ const UpdateMedical = () => {
   // ── Fetch existing data ──
   const fetchMedicalData = async () => {
     try {
-      const { data } = await axios.post("http://localhost:5000/editmedicaldata", { id });
+      const { data } = await axios.post("https://medicine-finder-1-zwuu.onrender.com/editmedicaldata", { id });
       if (data) {
         setMedicalName(data.Medicalname);
         setOwnerName(data.OwnerName);
@@ -279,7 +279,7 @@ const UpdateMedical = () => {
     setStatusMsg({ type: "", text: "" });
 
     try {
-      const response = await axios.post("http://localhost:5000/updatemedical", {
+      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/updatemedical", {
         medicalname, ownername, address, contact, licno, id,
       });
 

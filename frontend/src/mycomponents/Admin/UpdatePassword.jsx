@@ -24,7 +24,7 @@ const UpdatePassword = () => {
 
     const checkUser = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/isUser");
+            const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/isUser");
             const data = response.data;
             if (data.usertype === "nouser" || data.usertype !== "admin") {
                 navigate("/auth_error", { replace: true });
@@ -84,7 +84,7 @@ const UpdatePassword = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                "http://localhost:5000/changePasswordAdmin",
+                "https://medicine-finder-1-zwuu.onrender.com/changePasswordAdmin",
                 { oldpassword, newpassword, confirmnewpassword }
             );
             const result = response.data;

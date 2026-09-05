@@ -57,7 +57,7 @@ const Contact = () => {
 
     try {
       // Dynamic network payload submission to Express backend API point
-      const response = await axios.post("http://localhost:5000/api/contact", formData);
+      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/api/contact", formData);
       
       if (response.status === 201 || response.data.success) {
         setApiResponse({

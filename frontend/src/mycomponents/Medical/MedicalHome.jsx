@@ -42,7 +42,7 @@ const MedicalHome = () => {
         formData.append("Email", medical.Email);
 
         await axios.post(
-            "http://localhost:5000/uploadfile",
+            "https://medicine-finder-1-zwuu.onrender.com/uploadfile",
             formData
         );
 
@@ -52,7 +52,7 @@ const MedicalHome = () => {
     const deletePhoto = async () => {
 
         await axios.post(
-            "http://localhost:5000/delete_admin_photo",
+            "https://medicine-finder-1-zwuu.onrender.com/delete_admin_photo",
             {
                 Email: medical.Email
             }
@@ -69,7 +69,7 @@ const MedicalHome = () => {
             try {
 
                 const authResponse = await axios.get(
-                    "http://localhost:5000/isUser"
+                    "https://medicine-finder-1-zwuu.onrender.com/isUser"
                 );
 
                 const userType =
@@ -88,13 +88,13 @@ const MedicalHome = () => {
                 }
 
                 const profileResponse = await axios.get(
-                    "http://localhost:5000/showMedicalProfile"
+                    "https://medicine-finder-1-zwuu.onrender.com/showMedicalProfile"
                 );
 
                 setMedical(profileResponse?.data);
 
                 const photoResponse = await axios.post(
-                    "http://localhost:5000/get_profile_photo",
+                    "https://medicine-finder-1-zwuu.onrender.com/get_profile_photo",
                     {
                         eml: profileResponse.data.Email
                     }

@@ -20,7 +20,7 @@ const Search = () => {
   const fetchAllMedicines = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/showandsearchmedicines");
+      const response = await axios.get("https://medicine-finder-1-zwuu.onrender.com/showandsearchmedicines");
       setMedicines(response.data);
     } catch (error) {
       console.log("Error fetching medicines:", error);
@@ -40,7 +40,7 @@ const Search = () => {
     setSearched(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/searchmedicines", {
+      const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/searchmedicines", {
         search: search.trim(),
       });
 
