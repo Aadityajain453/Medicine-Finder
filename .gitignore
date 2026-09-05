@@ -4,9 +4,9 @@ frontend/node_modules/
 backend/node_modules/
 
 # Environment files
-.env
-frontend/.env
 backend/.env
+frontend/.env
+.env
 
 # Build folders
 build/

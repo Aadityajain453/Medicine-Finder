@@ -172,6 +172,8 @@ const multer = require('multer');
 const app = express();
 const cors = require('cors');
 const path = require("path");
+const PORT = process.env.PORT || 5000;
+
 app.use('/public/photos', express.static('public/photos'));
 
 
@@ -1062,4 +1064,7 @@ app.get("/isUser", (req, res) => {
     }
 });
 
-app.listen(5000);
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
