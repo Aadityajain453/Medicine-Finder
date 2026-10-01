@@ -337,15 +337,133 @@ app.post('/getadminreg', async (req, res) => {
     try {
         console.log("Received Data:", req.body);
 
-        const nm = req.body.name.trim();
-        const addr = req.body.address.trim();
-        const cont = req.body.contact.trim();
-        const eml = req.body.email.trim().toLowerCase();
-        const pass = req.body.password;
-        const utype = "admin";
+        const { name, address, contact, email, password } = req.body;
 
-        // Duplicate email check in LoginData
-        const existingEmail = await LoginData.findOne({ Email: eml });
+        // =========================
+        // Required Field Validation
+        // =========================
+
+        if (!name || !address || !contact || !email || !password) {
+            return res.json({
+                success: false,
+                Message: "All fields are required"
+            });
+        }
+
+        // =========================
+        // Trim & Normalize Data
+        // =========================
+
+        const nm = name.trim();
+        const addr = address.trim();
+        const cont = contact.trim();
+        const eml = email.trim().toLowerCase();
+        const pass = password;
+
+        // =========================
+        // Name Validation
+        // =========================
+
+        const nameRegex = /^[A-Za-z][A-Za-z .'-]*$/;
+
+        if (!nameRegex.test(nm)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid name"
+            });
+        }
+
+        if (nm.length < 2 || nm.length > 50) {
+            return res.json({
+                success: false,
+                Message: "Name must be between 2 and 50 characters"
+            });
+        }
+
+        // =========================
+        // Address Validation
+        // =========================
+
+        if (addr.length < 5 || addr.length > 200) {
+            return res.json({
+                success: false,
+                Message: "Address must be between 5 and 200 characters"
+            });
+        }
+
+        // =========================
+        // Contact Validation
+        // =========================
+
+        const contactRegex = /^[6-9][0-9]{9}$/;
+
+        if (!contactRegex.test(cont)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid 10-digit mobile number"
+            });
+        }
+
+        // =========================
+        // Email Validation
+        // =========================
+
+        const emailRegex =
+            /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+        if (!emailRegex.test(eml)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid email address"
+            });
+        }
+
+        // =========================
+        // Password Validation
+        // =========================
+
+        if (pass.length < 8 || pass.length > 50) {
+            return res.json({
+                success: false,
+                Message: "Password must be between 8 and 50 characters"
+            });
+        }
+
+        if (!/[A-Z]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one uppercase letter"
+            });
+        }
+
+        if (!/[a-z]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one lowercase letter"
+            });
+        }
+
+        if (!/[0-9]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one number"
+            });
+        }
+
+        if (!/[^A-Za-z0-9]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one special character"
+            });
+        }
+
+        // =========================
+        // Duplicate Email Check
+        // =========================
+
+        const existingEmail = await LoginData.findOne({
+            Email: eml
+        });
 
         if (existingEmail) {
             return res.json({
@@ -354,12 +472,18 @@ app.post('/getadminreg', async (req, res) => {
             });
         }
 
+        // =========================
+        // Create Admin
+        // =========================
+
         const adm = new AdminData({
             Name: nm,
             Address: addr,
             Contact: cont,
             Email: eml
         });
+
+        const utype = "admin";
 
         const lgn = new LoginData({
             Email: eml,
@@ -386,6 +510,7 @@ app.post('/getadminreg', async (req, res) => {
         });
     }
 });
+
 // Here is we get medical registration data 
 app.post('/getmedicalreg', async (req, res) => {
     try {

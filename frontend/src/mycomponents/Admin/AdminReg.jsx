@@ -285,6 +285,7 @@ const AdminReg = () => {
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
   const [login, setLogin] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const checkUser = useCallback(async () => {
     try {
@@ -307,58 +308,224 @@ const AdminReg = () => {
   }, [checkUser]);
 
   const handleAdminRegistration = async () => {
-    if (name === "") {
-      setLogin("Please fill the name");
+
+    // Remove unnecessary spaces
+    const trimmedName = name.trim();
+    const trimmedAddress = address.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedContact = contact.trim();
+
+    // -------------------------------
+    // NAME VALIDATION
+    // -------------------------------
+
+    if (trimmedName === "") {
+      setLogin("Please enter the full name");
       nameRef.current.focus();
-    } else if (contact === "") {
-      setLogin("Please fill the contact number");
+      return;
+    }
+
+    if (trimmedName.length < 2) {
+      setLogin("Name must contain at least 2 characters");
+      nameRef.current.focus();
+      return;
+    }
+
+    const nameRegex = /^[A-Za-z][A-Za-z .'-]*$/;
+
+    if (!nameRegex.test(trimmedName)) {
+      setLogin(
+        "Name can contain only letters, spaces, dots, hyphens and apostrophes"
+      );
+      nameRef.current.focus();
+      return;
+    }
+
+    // -------------------------------
+    // CONTACT VALIDATION
+    // -------------------------------
+
+    if (trimmedContact === "") {
+      setLogin("Please enter the contact number");
       contactRef.current.focus();
-    } else if (address === "") {
-      setLogin("Please fill the address");
-      addressRef.current.focus();
-    } else if (email === "") {
-      setLogin("Please fill the email address");
+      return;
+    }
+
+    const contactRegex = /^[6-9][0-9]{9}$/;
+
+    if (!contactRegex.test(trimmedContact)) {
+      setLogin("Please enter a valid 10-digit Indian mobile number");
+      contactRef.current.focus();
+      return;
+    }
+
+
+    // -------------------------------
+    // EMAIL VALIDATION
+    // -------------------------------
+
+    if (trimmedEmail === "") {
+      setLogin("Please enter the email address");
       emailRef.current.focus();
-    } else if (password === "") {
-      setLogin("Please fill the password");
+      return;
+    }
+
+    const emailRegex =
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(trimmedEmail)) {
+      setLogin("Please enter a valid email address");
+      emailRef.current.focus();
+      return;
+    }
+
+    // -------------------------------
+    // ADDRESS VALIDATION
+    // -------------------------------
+
+    if (trimmedAddress === "") {
+      setLogin("Please enter the address");
+      addressRef.current.focus();
+      return;
+    }
+
+    if (trimmedAddress.length < 5) {
+      setLogin("Address must contain at least 5 characters");
+      addressRef.current.focus();
+      return;
+    }
+
+    if (trimmedAddress.length > 200) {
+      setLogin("Address cannot exceed 200 characters");
+      addressRef.current.focus();
+      return;
+    }
+
+
+    // -------------------------------
+    // PASSWORD VALIDATION
+    // -------------------------------
+
+    if (password === "") {
+      setLogin("Please enter the password");
       passwordRef.current.focus();
-    } else if (confirmpassword === "") {
+      return;
+    }
+
+    if (password.length < 8) {
+      setLogin("Password must contain at least 8 characters");
+      passwordRef.current.focus();
+      return;
+    }
+
+    if (password.length > 50) {
+      setLogin("Password cannot exceed 50 characters");
+      passwordRef.current.focus();
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setLogin("Password must contain at least one uppercase letter");
+      passwordRef.current.focus();
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      setLogin("Password must contain at least one lowercase letter");
+      passwordRef.current.focus();
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setLogin("Password must contain at least one number");
+      passwordRef.current.focus();
+      return;
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\]/`~+=;'']/g.test(password)) {
+      setLogin("Password must contain at least one special character");
+      passwordRef.current.focus();
+      return;
+    }
+
+    // -------------------------------
+    // CONFIRM PASSWORD
+    // -------------------------------
+
+    if (confirmpassword === "") {
       setLogin("Please confirm your password");
       confpassRef.current.focus();
-    } else if (confirmpassword !== password) {
+      return;
+    }
+
+    if (confirmpassword !== password) {
       setLogin("Passwords do not match");
       confpassRef.current.focus();
-    } else {
-      try {
-        const response = await axios.post("https://medicine-finder-1-zwuu.onrender.com/getadminreg", {
-          name,
-          address,
-          contact,
-          email,
+      return;
+    }
+
+    // -------------------------------
+    // API REQUEST
+    // -------------------------------
+
+    try {
+
+      setIsSubmitting(true);
+
+      const response = await axios.post(
+        "https://medicine-finder-1-zwuu.onrender.com/getadminreg",
+        {
+          name: trimmedName,
+          address: trimmedAddress,
+          contact: trimmedContact,
+          email: trimmedEmail,
           password,
-        });
-
-        const result = response.data;
-
-        if (result.success === false) {
-          setLogin(result.Message);
-        } else if (result.success === true) {
-          setLogin("Admin registered successfully");
-          setName("");
-          setAddress("");
-          setContact("");
-          setEmail("");
-          setPassword("");
-          setConfirmpassword("");
         }
+      );
 
-        setTimeout(() => {
-          setLogin("");
-        }, 3000);
-      } catch (error) {
-        console.log(error);
-        setLogin("Something went wrong");
+      const result = response.data;
+
+      if (result.success === false) {
+
+        setLogin(
+          result.Message || "Unable to register admin"
+        );
+
+      } else if (result.success === true) {
+
+        setLogin("Admin registered successfully");
+
+        // Clear form
+        setName("");
+        setAddress("");
+        setContact("");
+        setEmail("");
+        setPassword("");
+        setConfirmpassword("");
+
       }
+
+      setTimeout(() => {
+        setLogin("");
+      }, 3000);
+
+    } catch (error) {
+
+      console.error(
+        "Admin registration error:",
+        error
+      );
+
+      if (error.response?.data?.Message) {
+        setLogin(error.response.data.Message);
+      } else {
+        setLogin("Something went wrong. Please try again.");
+      }
+
+    } finally {
+
+      setIsSubmitting(false);
+
     }
   };
 
@@ -420,15 +587,26 @@ const AdminReg = () => {
                   value={name}
                   inputRef={nameRef}
                   placeholder="e.g., John Doe"
-                  onChange={(e) => { setName(e.target.value); setLogin(""); }}
+                  maxLength={50}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setLogin("");
+                  }}
                 />
 
                 <InputBox
                   label="Contact Number"
                   value={contact}
                   inputRef={contactRef}
-                  placeholder="e.g., +1234567890"
-                  onChange={(e) => { setContact(e.target.value); setLogin(""); }}
+                  placeholder="e.g., 9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+
+                    setContact(value);
+                    setLogin("");
+                  }}
                 />
 
                 <InputBox
@@ -437,8 +615,12 @@ const AdminReg = () => {
                   value={email}
                   inputRef={emailRef}
                   placeholder="username@domain.com"
-                  onChange={(e) => { setEmail(e.target.value); setLogin(""); }}
-                  isFullWidth={true} // Spans email nicely across the space if desired
+                  maxLength={100}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setLogin("");
+                  }}
+                  isFullWidth={true}
                 />
 
                 <InputBox
@@ -446,7 +628,11 @@ const AdminReg = () => {
                   value={address}
                   inputRef={addressRef}
                   placeholder="Primary corporate location details"
-                  onChange={(e) => { setAddress(e.target.value); setLogin(""); }}
+                  maxLength={200}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setLogin("");
+                  }}
                   isFullWidth={true}
                 />
 
@@ -456,21 +642,36 @@ const AdminReg = () => {
                   value={password}
                   inputRef={passwordRef}
                   placeholder="••••••••"
-                  onChange={(e) => { setPassword(e.target.value); setLogin(""); }}
+                  maxLength={50}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setLogin("");
+                  }}
                 />
-
                 <InputBox
                   label="Verify Access Password"
                   type="password"
                   value={confirmpassword}
                   inputRef={confpassRef}
                   placeholder="••••••••"
-                  onChange={(e) => { setConfirmpassword(e.target.value); setLogin(""); }}
+                  maxLength={50}
+                  onChange={(e) => {
+                    setConfirmpassword(e.target.value);
+                    setLogin("");
+                  }}
                 />
 
                 <div className="span-two">
-                  <button onClick={handleAdminRegistration} className="submit-btn">
-                    Register Account
+                  <button
+                    onClick={handleAdminRegistration}
+                    className="submit-btn"
+                    disabled={isSubmitting}
+                    style={{
+                      opacity: isSubmitting ? 0.7 : 1,
+                      cursor: isSubmitting ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {isSubmitting ? "Registering..." : "Register Account"}
                   </button>
                 </div>
               </div>
@@ -499,6 +700,7 @@ const AdminReg = () => {
   );
 };
 
+
 const InputBox = ({
   label,
   type = "text",
@@ -507,11 +709,16 @@ const InputBox = ({
   placeholder,
   onChange,
   isFullWidth = false,
+  maxLength,
+  inputMode,
 }) => {
   return (
     <div className={isFullWidth ? "span-two" : ""}>
+
       <div className="input-group">
+
         <label>{label}</label>
+
         <input
           className="admin-input"
           type={type}
@@ -519,10 +726,13 @@ const InputBox = ({
           ref={inputRef}
           placeholder={placeholder}
           onChange={onChange}
+          maxLength={maxLength}
+          inputMode={inputMode}
         />
+
       </div>
+
     </div>
   );
 };
-
 export default AdminReg;
