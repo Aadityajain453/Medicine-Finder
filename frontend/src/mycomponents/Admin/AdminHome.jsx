@@ -507,6 +507,9 @@ const AdminHome = () => {
   const [preview, setPreview] = useState(null);
   const [photo, setPhoto] = useState(null);
 
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(true);
+
   // Responsive state
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
@@ -732,6 +735,7 @@ const AdminHome = () => {
 
       await fetchAdminProfile();
       await fetchDashboardStats();
+      await fetchRecentActivity();
     } catch (err) {
       toast.error("Authentication failed");
       console.error("Auth check failed:", err);
@@ -797,6 +801,36 @@ const AdminHome = () => {
     } finally {
 
       setStatsLoading(false);
+
+    }
+  };
+
+
+  const fetchRecentActivity = async () => {
+    try {
+
+      setActivityLoading(true);
+
+      const { data } = await axios.get(
+        "https://medicine-finder-1-zwuu.onrender.com/adminRecentActivity"
+      );
+
+      if (data.success) {
+        setRecentActivity(data.activity);
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Failed to fetch recent activity:",
+        error
+      );
+
+      toast.error("Failed to load recent activity");
+
+    } finally {
+
+      setActivityLoading(false);
 
     }
   };
@@ -1143,29 +1177,182 @@ const AdminHome = () => {
 
               {/* ───────────────── Activity ───────────────── */}
 
-              <div style={responsiveActivityCard}>
+              <div
+                style={{
+                  marginTop: "16px",
+                  background: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "14px",
+                  overflow: "hidden"
+                }}
+              >
+                <div
+                  style={{
+                    padding: "20px",
+                    borderBottom: "1px solid #e2e8f0"
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#64748b",
+                      fontWeight: "600",
+                      letterSpacing: "0.5px"
+                    }}
+                  >
+                    RECENT ACTIVITY
+                  </div>
 
-                <p style={styles.activityHeading}>
-                  Recent activity
-                </p>
+                  <div
+                    style={{
+                      marginTop: "5px",
+                      fontSize: "13px",
+                      color: "#94a3b8"
+                    }}
+                  >
+                    Latest activity from your system
+                  </div>
+                </div>
 
-                <ActivityItem
-                  color="#2563eb"
-                  text="New medicine record added — Paracetamol 500mg"
-                  time="2 min ago"
-                />
+                {activityLoading ? (
 
-                <ActivityItem
-                  color="#059669"
-                  text="MedPlus Store #14 approved"
-                  time="1 hr ago"
-                />
+                  <div
+                    style={{
+                      padding: "30px 20px",
+                      textAlign: "center",
+                      color: "#64748b"
+                    }}
+                  >
+                    Loading activity...
+                  </div>
 
-                <ActivityItem
-                  color="#7c3aed"
-                  text="Admin account created — Priya Verma"
-                  time="Yesterday"
-                />
+                ) : recentActivity.length === 0 ? (
+
+                  <div
+                    style={{
+                      padding: "30px 20px",
+                      textAlign: "center",
+                      color: "#64748b"
+                    }}
+                  >
+                    No recent activity found.
+                  </div>
+
+                ) : (
+
+                  recentActivity.map((item, index) => {
+
+                    const activityDate = new Date(item.time);
+
+                    return (
+                      <div
+                        key={`${item.type}-${item.description}-${index}`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "14px",
+                          padding: "16px 20px",
+                          borderBottom:
+                            index !== recentActivity.length - 1
+                              ? "1px solid #f1f5f9"
+                              : "none",
+                          minWidth: 0
+                        }}
+                      >
+
+                        {/* Activity Icon */}
+
+                        <div
+                          style={{
+                            width: "42px",
+                            height: "42px",
+                            minWidth: "42px",
+                            borderRadius: "10px",
+                            background:
+                              item.type === "medicine"
+                                ? "#eff6ff"
+                                : item.type === "medical"
+                                  ? "#f0fdf4"
+                                  : "#f5f3ff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "18px"
+                          }}
+                        >
+                          {item.type === "medicine"
+                            ? "💊"
+                            : item.type === "medical"
+                              ? "🏥"
+                              : "👨‍💼"}
+                        </div>
+
+                        {/* Activity Details */}
+
+                        <div
+                          style={{
+                            flex: 1,
+                            minWidth: 0
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#0f172a",
+                              overflowWrap: "anywhere"
+                            }}
+                          >
+                            {item.title}
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: "3px",
+                              fontSize: "13px",
+                              color: "#475569",
+                              overflowWrap: "anywhere"
+                            }}
+                          >
+                            {item.description}
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: "3px",
+                              fontSize: "12px",
+                              color: "#94a3b8",
+                              overflowWrap: "anywhere"
+                            }}
+                          >
+                            {item.user}
+                          </div>
+
+                        </div>
+
+                        {/* Date */}
+
+                        <div
+                          style={{
+                            minWidth: "100px",
+                            textAlign: "right",
+                            fontSize: "12px",
+                            color: "#94a3b8"
+                          }}
+                        >
+                          {activityDate.toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </div>
+
+                      </div>
+                    );
+                  })
+
+                )}
 
               </div>
 

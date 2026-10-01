@@ -957,6 +957,94 @@ app.get('/adminDashboardStats', async (req, res) => {
 });
 
 
+
+// Admin Dashboard Recent Activity
+
+app.get('/adminRecentActivity', async (req, res) => {
+    try {
+
+        const [medicines, medicalStores, admins] = await Promise.all([
+
+            MedicineData.find({})
+                .sort({ _id: -1 })
+                .limit(5)
+                .select("MedicineName MedicalEmail _id"),
+
+            MedicalData.find({})
+                .sort({ _id: -1 })
+                .limit(5)
+                .select("Medicalname OwnerName Email _id"),
+
+            AdminData.find({})
+                .sort({ _id: -1 })
+                .limit(5)
+                .select("Name Email _id")
+        ]);
+
+        const activity = [];
+
+        // Medicine activity
+        medicines.forEach((medicine) => {
+
+            activity.push({
+                type: "medicine",
+                title: "Medicine Added",
+                description: medicine.MedicineName,
+                user: medicine.MedicalEmail,
+                time: medicine._id.getTimestamp()
+            });
+
+        });
+
+        // Medical Store activity
+        medicalStores.forEach((medical) => {
+
+            activity.push({
+                type: "medical",
+                title: "Medical Store Registered",
+                description: medical.Medicalname,
+                user: medical.Email,
+                time: medical._id.getTimestamp()
+            });
+
+        });
+
+        // Admin activity
+        admins.forEach((admin) => {
+
+            activity.push({
+                type: "admin",
+                title: "Admin Registered",
+                description: admin.Name,
+                user: admin.Email,
+                time: admin._id.getTimestamp()
+            });
+
+        });
+
+        // Latest activities first
+        activity.sort(
+            (a, b) => new Date(b.time) - new Date(a.time)
+        );
+
+        res.json({
+            success: true,
+            activity: activity.slice(0, 6)
+        });
+
+    } catch (error) {
+
+        console.log("Recent Activity Error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch recent activity"
+        });
+    }
+});
+
+
+
 app.get('/getAdminprofile', async (req, res) => {
     try {
         const eml = session.email;
