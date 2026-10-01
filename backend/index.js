@@ -7,12 +7,12 @@ mongoose.set('strictQuery', false);
 
 console.log("MONGODB_URI:", process.env.MONGODB_URI);
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-    console.log("Connected to MongoDB Atlas");
-})
-.catch((err) => {
-    console.log(err);
-});
+    .then(() => {
+        console.log("Connected to MongoDB Atlas");
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 
 // Schema - It defines the all fields to store data in databse, and it is also known as model.
 
@@ -925,6 +925,36 @@ app.post('/updateMedicalPassword', async (req, res) => {
     }
 });
 
+
+
+// Admin Dashboard Statistics
+
+app.get('/adminDashboardStats', async (req, res) => {
+    try {
+
+        const totalMedicines = await MedicineData.countDocuments();
+
+        const totalMedicalStores = await MedicalData.countDocuments();
+
+        const totalAdmins = await AdminData.countDocuments();
+
+        res.json({
+            success: true,
+            medicines: totalMedicines,
+            medicalStores: totalMedicalStores,
+            admins: totalAdmins
+        });
+
+    } catch (error) {
+
+        console.log("Dashboard Stats Error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch dashboard statistics"
+        });
+    }
+});
 
 
 app.get('/getAdminprofile', async (req, res) => {
