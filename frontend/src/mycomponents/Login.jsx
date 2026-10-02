@@ -92,7 +92,7 @@ const Login = () => {
 
           toast.success("Medical Login Successful!", {
             position: "top-right",
-            autoClose: 1500,
+            autoClose: 1000,
             theme: "colored",
           });
 

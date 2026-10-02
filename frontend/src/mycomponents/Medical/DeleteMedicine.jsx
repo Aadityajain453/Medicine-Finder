@@ -2,10 +2,16 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MedicalNavbar from "./MedicalNavbar";
+import "./DeleteMedicine.css";
 
 const DeleteMedicine = () => {
+
     const navigate = useNavigate();
     const { id } = useParams();
+
+    // ─────────────────────────────
+    // STATES
+    // ─────────────────────────────
 
     const [medicinename, setMedicineName] = useState("");
     const [medicinetype, setMedicineType] = useState("");
@@ -13,250 +19,539 @@ const DeleteMedicine = () => {
     const [licensenumber, setLicenseNumber] = useState("");
     const [unitprice, setUnitPrice] = useState("");
     const [description, setDescription] = useState("");
+
     const [register, setRegister] = useState("");
 
+    const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
+    const [notFound, setNotFound] = useState(false);
+
+    // ─────────────────────────────
+    // CHECK USER + FETCH MEDICINE
+    // ─────────────────────────────
+
     useEffect(() => {
-    checkUser();
-    displayDataForDelete();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [id]);
 
-    const checkUser = async () => {
-        try {
-            const response = await axios.get('https://medicine-finder-1-zwuu.onrender.com/isUser');
-
-            const data = response.data;
-            console.log(data);
-            if (data.usertype === "nouser") {
-                navigate("/auth_error", { replace: true });
-            }
-            else if (data.usertype !== "medical") {
-                navigate("/auth_error", { replace: true });
-            }
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const displayDataForDelete = async () => {
-        try {
-            const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/getmedicinedata', { id });
-
-            let result = response.data;
-            console.log(result);
-            if (result) {
-                setMedicineName(result.MedicineName);
-                setMedicineType(result.MedicineType);
-                setMedicineCompany(result.MedicineCompany);
-                setLicenseNumber(result.LicenseNumber);
-                setUnitPrice(result.UnitPrice);
-                setDescription(result.Description);
-            }
-
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const handleDeleteMedicine = async () => {
-        let ConfirmDelete = window.confirm("Are you sure you want to permanently delete this medicine?");
-        if (ConfirmDelete === true) {
+        const loadMedicine = async () => {
 
             try {
-                const response = await axios.post('https://medicine-finder-1-zwuu.onrender.com/deletemedicinedata', {
-                    id
-                });
 
-                let result = response.data;
+                setLoading(true);
+
+                // Check logged-in user
+                const userResponse = await axios.get(
+                    "https://medicine-finder-1-zwuu.onrender.com/isUser"
+                );
+
+                const userData = userResponse.data;
+
+                if (
+                    userData.usertype === "nouser" ||
+                    userData.usertype !== "medical"
+                ) {
+
+                    navigate("/auth_error", {
+                        replace: true
+                    });
+
+                    return;
+                }
+
+                // Fetch medicine details
+                const response = await axios.post(
+                    "https://medicine-finder-1-zwuu.onrender.com/getmedicinedata",
+                    { id }
+                );
+
+                const result = response.data;
+
                 console.log(result);
 
-                setRegister("Medicine deleted successfully");
+                if (
+                    !result ||
+                    !result.MedicineName
+                ) {
 
-                setMedicineName('');
-                setMedicineType('');
-                setMedicineCompany('');
-                setLicenseNumber('');
-                setUnitPrice('');
-                setDescription('');
+                    setNotFound(true);
+                    return;
+                }
 
+                setMedicineName(
+                    result.MedicineName || ""
+                );
 
+                setMedicineType(
+                    result.MedicineType || ""
+                );
 
-                setTimeout(() => {
-                    navigate('/showmedicine', { replace: true });
-                }, 2500);
+                setMedicineCompany(
+                    result.MedicineCompany || ""
+                );
 
+                setLicenseNumber(
+                    result.LicenseNumber || ""
+                );
+
+                setUnitPrice(
+                    result.UnitPrice || ""
+                );
+
+                setDescription(
+                    result.Description || ""
+                );
 
             } catch (error) {
-                console.log(error)
-                setRegister("Something went wrong");
+
+                console.log(
+                    "Delete Medicine Error:",
+                    error
+                );
+
+                setNotFound(true);
+
+            } finally {
+
+                setLoading(false);
             }
+        };
+
+        loadMedicine();
+
+    }, [id, navigate]);
+
+    // ─────────────────────────────
+    // DELETE MEDICINE
+    // ─────────────────────────────
+
+    const handleDeleteMedicine = async () => {
+
+        if (deleting) {
+            return;
         }
-        else {
-            setRegister("Delete cancelled. Your data is safe.");
+
+        const confirmDelete = window.confirm(
+            `Are you sure you want to permanently delete "${medicinename}"?`
+        );
+
+        if (!confirmDelete) {
+
+            setRegister(
+                "Delete cancelled. Your data is safe."
+            );
+
             setTimeout(() => {
-                setRegister('');
+                setRegister("");
             }, 2500);
+
+            return;
         }
+
+        try {
+
+            setDeleting(true);
+            setRegister("");
+
+            const response = await axios.post(
+                "https://medicine-finder-1-zwuu.onrender.com/deletemedicinedata",
+                {
+                    id
+                }
+            );
+
+            const result = response.data;
+
+            console.log(result);
+
+            setRegister(
+                "Medicine deleted successfully"
+            );
+
+            // Clear fields
+            setMedicineName("");
+            setMedicineType("");
+            setMedicineCompany("");
+            setLicenseNumber("");
+            setUnitPrice("");
+            setDescription("");
+
+            // Redirect after success
+            setTimeout(() => {
+
+                navigate(
+                    "/showmedicine",
+                    {
+                        replace: true
+                    }
+                );
+
+            }, 2000);
+
+        } catch (error) {
+
+            console.log(
+                "Delete Error:",
+                error
+            );
+
+            const backendMessage =
+                error?.response?.data?.Message ||
+                error?.response?.data?.message;
+
+            setRegister(
+                backendMessage ||
+                "Something went wrong. Medicine could not be deleted."
+            );
+
+            setDeleting(false);
+        }
+    };
+
+    // ─────────────────────────────
+    // LOADING
+    // ─────────────────────────────
+
+    if (loading) {
+
+        return (
+            <>
+                <MedicalNavbar />
+
+                <div className="dm-loading-page">
+
+                    <div className="text-center">
+
+                        <div
+                            className="spinner-border text-primary"
+                            style={{
+                                width: "3rem",
+                                height: "3rem"
+                            }}
+                            role="status"
+                            aria-label="Loading"
+                        />
+
+                        <h5 className="dm-loading-title">
+                            Loading medicine details...
+                        </h5>
+
+                    </div>
+
+                </div>
+            </>
+        );
     }
+
+    // ─────────────────────────────
+    // MEDICINE NOT FOUND
+    // ─────────────────────────────
+
+    if (notFound) {
+
+        return (
+            <>
+                <MedicalNavbar />
+
+                <div className="dm-page">
+
+                    <div className="container">
+
+                        <div className="dm-not-found">
+
+                            <div className="dm-not-found-icon">
+                                🔍
+                            </div>
+
+                            <h2>
+                                Medicine Not Found
+                            </h2>
+
+                            <p>
+                                The medicine you are trying to
+                                delete could not be found.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    navigate(
+                                        "/showmedicine",
+                                        {
+                                            replace: true
+                                        }
+                                    )
+                                }
+                                className="dm-primary-btn"
+                            >
+                                Back to Medicines
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </>
+        );
+    }
+
+    // ─────────────────────────────
+    // MAIN UI
+    // ─────────────────────────────
+
     return (
         <>
             <MedicalNavbar />
-            <div
-                style={{
-                    minHeight: "100vh",
-                    background: "linear-gradient(135deg, #f8fafc, #e0f2fe)",
-                    padding: "40px 12px",
-                }}
-            >
+
+            <div className="dm-page">
+
                 <div className="container">
-                    <div
-                        className="mx-auto"
-                        style={{
-                            maxWidth: "850px",
-                            background: "#ffffff",
-                            borderRadius: "28px",
-                            boxShadow: "0 25px 60px rgba(15, 23, 42, 0.12)",
-                            border: "1px solid #e2e8f0",
-                            overflow: "hidden",
-                        }}
-                    >
-                        <div
-                            className="text-center text-white p-4"
-                            style={{
-                                background: "linear-gradient(135deg, #0f172a, #1d4ed8)",
-                            }}
-                        >
-                            <div className="fs-1 mb-2">🛡️</div>
-                            <h2 className="fw-bold mb-1">Delete Medicine</h2>
-                            <p className="mb-0 opacity-75">
-                                Please review medicine details before deleting permanently
+
+                    <div className="dm-card">
+
+                        {/* ───────────────────────────── */}
+                        {/* HEADER */}
+                        {/* ───────────────────────────── */}
+
+                        <div className="dm-header">
+
+                            <div className="dm-header-icon">
+                                🛡️
+                            </div>
+
+                            <h2>
+                                Delete Medicine
+                            </h2>
+
+                            <p>
+                                Please review medicine details
+                                before deleting permanently.
                             </p>
+
                         </div>
 
-                        <div className="p-4 p-md-5">
+                        {/* ───────────────────────────── */}
+                        {/* CONTENT */}
+                        {/* ───────────────────────────── */}
+
+                        <div className="dm-content">
+
+                            {/* MESSAGE */}
+
                             {register && (
+
                                 <div
-                                    className={`alert text-center fw-semibold ${register.includes("successfully")
-                                        ? "alert-success"
-                                        : register.includes("cancelled")
-                                            ? "alert-warning"
-                                            : "alert-danger"
-                                        }`}
+                                    className={`dm-message ${
+                                        register.includes(
+                                            "successfully"
+                                        )
+                                            ? "dm-success"
+                                            : register.includes(
+                                                "cancelled"
+                                            )
+                                                ? "dm-warning"
+                                                : "dm-danger"
+                                    }`}
                                 >
+                                    {register.includes(
+                                        "successfully"
+                                    )
+                                        ? "✓ "
+                                        : register.includes(
+                                            "cancelled"
+                                        )
+                                            ? "ℹ "
+                                            : "⚠ "
+                                    }
+
                                     {register}
                                 </div>
+
                             )}
 
-                            <div className="row g-4">
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                            {/* ───────────────────────────── */}
+                            {/* MEDICINE DETAILS */}
+                            {/* ───────────────────────────── */}
+
+                            <div className="dm-details-grid">
+
+                                {/* MEDICINE NAME */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         Medicine Name
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={medicinename}
                                         readOnly
                                     />
+
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                                {/* TYPE */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         Medicine Type
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={medicinetype}
                                         readOnly
                                     />
+
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                                {/* COMPANY */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         Medicine Company
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={medicinecompany}
                                         readOnly
                                     />
+
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                                {/* LICENSE */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         License Number
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={licensenumber}
                                         readOnly
                                     />
+
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                                {/* PRICE */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         Unit Price
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={`₹ ${unitprice}`}
                                         readOnly
                                     />
+
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="form-label fw-semibold text-secondary">
+                                {/* DESCRIPTION */}
+
+                                <div className="dm-field">
+
+                                    <label>
                                         Description
                                     </label>
+
                                     <input
-                                        className="form-control form-control-lg"
                                         type="text"
                                         value={description}
                                         readOnly
                                     />
+
                                 </div>
+
                             </div>
 
-                            <div
-                                className="mt-5 p-4 rounded-4"
-                                style={{
-                                    background: "#fff7ed",
-                                    border: "1px solid #fed7aa",
-                                }}
-                            >
-                                <h5 className="fw-bold text-danger mb-2">⚠ Warning</h5>
-                                <p className="mb-0 text-secondary">
-                                    This action will permanently delete this medicine record from your
-                                    Medicine Finder system.
+                            {/* ───────────────────────────── */}
+                            {/* WARNING */}
+                            {/* ───────────────────────────── */}
+
+                            <div className="dm-warning-box">
+
+                                <div className="dm-warning-title">
+                                    ⚠ Warning
+                                </div>
+
+                                <p>
+                                    This action will permanently
+                                    delete this medicine record
+                                    from your Medicine Finder
+                                    system.
                                 </p>
+
+                                <small>
+                                    This action cannot be undone.
+                                </small>
+
                             </div>
 
-                            <div className="mt-5 d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                            {/* ───────────────────────────── */}
+                            {/* BUTTONS */}
+                            {/* ───────────────────────────── */}
+
+                            <div className="dm-actions">
+
                                 <button
-                                    onClick={handleDeleteMedicine}
-                                    className="btn btn-danger btn-lg px-5 fw-bold rounded-pill"
+                                    type="button"
+                                    onClick={
+                                        handleDeleteMedicine
+                                    }
+                                    disabled={deleting}
+                                    className="dm-delete-btn"
                                 >
-                                    Delete Medicine
+
+                                    {deleting ? (
+                                        <>
+                                            <span
+                                                className="spinner-border spinner-border-sm me-2"
+                                                role="status"
+                                                aria-hidden="true"
+                                            />
+
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            🗑️ Delete Medicine
+                                        </>
+                                    )}
+
                                 </button>
 
                                 <button
-                                    onClick={() => navigate("/showmedicine")}
-                                    className="btn btn-outline-primary btn-lg px-5 fw-bold rounded-pill"
+                                    type="button"
+                                    onClick={() =>
+                                        navigate(
+                                            "/showmedicine"
+                                        )
+                                    }
+                                    disabled={deleting}
+                                    className="dm-cancel-btn"
                                 >
-                                    Cancel
+                                    ← Cancel
                                 </button>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
         </>
     );
-}
+};
+
 export default DeleteMedicine;

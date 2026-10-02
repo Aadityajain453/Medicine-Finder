@@ -1,0 +1,598 @@
+/* =========================================
+   MEDICINE REGISTRATION PAGE
+========================================= */
+
+.mr-page {
+    min-height: 100vh;
+    background: #f4f7fb;
+    padding: 35px 0;
+    overflow-x: hidden;
+}
+
+.mr-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.mr-header {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.mr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.mr-main-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.mr-main-description {
+    color: #64748b;
+    margin-bottom: 0;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.mr-header-icon-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.mr-header-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    color: #ffffff;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+}
+
+/* =========================================
+   FORM CARD
+========================================= */
+
+.mr-form-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.mr-section-heading {
+    margin-bottom: 24px;
+}
+
+.mr-section-heading h3 {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.mr-section-heading p {
+    color: #64748b;
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+/* =========================================
+   LABELS
+========================================= */
+
+.mr-label {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.mr-input {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 14px !important;
+    border: 1px solid #dbe4f0 !important;
+    background: #ffffff !important;
+    padding: 14px 16px !important;
+    font-size: 14px !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.mr-input::placeholder {
+    color: #94a3b8;
+}
+
+.mr-input:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+}
+
+/* =========================================
+   SAVE BUTTON
+========================================= */
+
+.mr-save-btn {
+    width: 100%;
+    min-height: 56px;
+    margin-top: 28px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 15px;
+    font-size: 15px;
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.18);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.mr-save-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.25);
+}
+
+.mr-save-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.mr-save-btn:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   SUCCESS MESSAGE
+========================================= */
+
+.mr-success-message {
+    margin-top: 18px;
+    text-align: center;
+    background: #dcfce7;
+    color: #166534;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* =========================================
+   PREVIEW CARD
+========================================= */
+
+.mr-preview-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    height: 100%;
+}
+
+.mr-preview-title {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 25px;
+}
+
+/* =========================================
+   MEDICINE PREVIEW
+========================================= */
+
+.mr-medicine-preview {
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 22px;
+    padding: 24px;
+    color: #ffffff;
+    overflow: hidden;
+}
+
+.mr-preview-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.mr-preview-name-area {
+    min-width: 0;
+}
+
+.mr-preview-name-area small,
+.mr-medicine-preview small {
+    opacity: 0.8;
+}
+
+.mr-preview-name-area h3 {
+    font-weight: 800;
+    margin-top: 5px;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.mr-preview-icon {
+    flex-shrink: 0;
+    font-size: 34px;
+}
+
+.mr-preview-company {
+    margin-bottom: 18px;
+}
+
+.mr-preview-company h6,
+.mr-medicine-preview h6 {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.mr-medicine-preview hr {
+    border-color: rgba(255, 255, 255, 0.2);
+    margin: 20px 0;
+}
+
+.mr-license {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* =========================================
+   DESCRIPTION PREVIEW
+========================================= */
+
+.mr-description-preview {
+    margin-top: 16px;
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+}
+
+.mr-description-preview small {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.mr-description-preview p {
+    margin-top: 8px;
+    margin-bottom: 0;
+    color: #0f172a;
+    font-size: 14px;
+    line-height: 24px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.mr-loading-page {
+    min-height: 100vh;
+    background: #f4f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mr-loading-title {
+    margin-top: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 991.98px) {
+
+    .mr-page {
+        padding: 25px 0;
+    }
+
+    .mr-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .mr-header {
+        padding: 24px;
+    }
+
+    .mr-header-icon-wrapper {
+        justify-content: flex-start;
+        margin-top: 22px;
+    }
+
+    .mr-main-title {
+        font-size: 1.8rem;
+    }
+
+    .mr-form-card {
+        padding: 26px;
+    }
+
+    .mr-preview-card {
+        padding: 26px;
+    }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 767.98px) {
+
+    .mr-page {
+        padding: 18px 0 25px;
+    }
+
+    .mr-container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .mr-header {
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+
+    .mr-badge {
+        font-size: 12px;
+        padding: 7px 11px;
+        margin-bottom: 12px;
+    }
+
+    .mr-main-title {
+        font-size: 1.55rem;
+        line-height: 1.25;
+        margin-bottom: 8px;
+    }
+
+    .mr-main-description {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .mr-header-icon-wrapper {
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .mr-header-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        font-size: 30px;
+    }
+
+    .mr-form-card {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .mr-section-heading {
+        margin-bottom: 20px;
+    }
+
+    .mr-section-heading h3 {
+        font-size: 1.25rem;
+    }
+
+    .mr-section-heading p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .mr-label {
+        font-size: 13px;
+    }
+
+    .mr-input {
+        min-height: 52px;
+        padding: 13px 14px !important;
+        font-size: 14px !important;
+    }
+
+    .mr-save-btn {
+        min-height: 54px;
+        margin-top: 24px;
+        border-radius: 14px;
+    }
+
+    .mr-preview-card {
+        padding: 20px;
+        border-radius: 20px;
+        height: auto;
+    }
+
+    .mr-preview-title {
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+    }
+
+    .mr-medicine-preview {
+        border-radius: 19px;
+        padding: 20px;
+    }
+
+    .mr-preview-top {
+        margin-bottom: 20px;
+    }
+
+    .mr-preview-name-area h3 {
+        font-size: 1.35rem;
+    }
+
+    .mr-preview-icon {
+        font-size: 28px;
+    }
+
+    .mr-description-preview {
+        padding: 16px;
+    }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 400px) {
+
+    .mr-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .mr-header {
+        padding: 17px;
+    }
+
+    .mr-form-card,
+    .mr-preview-card {
+        padding: 16px;
+    }
+
+    .mr-main-title {
+        font-size: 1.4rem;
+    }
+
+    .mr-main-description {
+        font-size: 12.5px;
+    }
+
+    .mr-header-icon {
+        width: 62px;
+        height: 62px;
+        font-size: 27px;
+    }
+
+    .mr-input {
+        min-height: 50px;
+    }
+
+    .mr-medicine-preview {
+        padding: 17px;
+    }
+
+    .mr-preview-name-area h3 {
+        font-size: 1.15rem;
+    }
+
+    .mr-preview-icon {
+        font-size: 25px;
+    }
+
+    .mr-description-preview p {
+        font-size: 13px;
+        line-height: 21px;
+    }
+}
+
+/* =========================================
+   VERY SMALL DEVICES
+========================================= */
+
+@media (max-width: 340px) {
+
+    .mr-container {
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
+    .mr-header {
+        padding: 14px;
+    }
+
+    .mr-form-card,
+    .mr-preview-card {
+        padding: 13px;
+    }
+
+    .mr-badge {
+        font-size: 11px;
+    }
+
+    .mr-main-title {
+        font-size: 1.3rem;
+    }
+
+    .mr-medicine-preview {
+        padding: 14px;
+    }
+
+    .mr-preview-top {
+        gap: 8px;
+    }
+
+    .mr-preview-name-area h3 {
+        font-size: 1.05rem;
+    }
+}
+
+/* =========================================
+   VALIDATION
+========================================= */
+
+.mr-input-error {
+    border-color: #ef4444 !important;
+    background: #fffafa !important;
+}
+
+.mr-input-error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+}
+
+.mr-error {
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+    line-height: 18px;
+}
+
+.mr-api-error {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}

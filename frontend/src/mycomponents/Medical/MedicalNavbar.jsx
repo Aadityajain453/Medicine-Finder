@@ -1,646 +1,1030 @@
-import { useState, useRef, useEffect } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-// ─── STYLES ───────────────────────────────────────────────────
-const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-  .mnav-root {
-    position: sticky;
-    top: 0;
-    z-index: 1050;
-    width: 100%;
-    font-family: 'Inter', sans-serif;
-  }
-
-  /* ── TOP BAR ── */
-  .mnav-bar {
-    background: #0c1428;
-    border-bottom: 1px solid rgba(20,184,166,0.18);
-    height: 62px;
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 0;
-  }
-
-  /* ── BRAND ── */
-  .mnav-brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    text-decoration: none;
-    flex-shrink: 0;
-  }
-
-  .mnav-brand-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #14b8a6, #0f766e);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 17px;
-    flex-shrink: 0;
-    box-shadow: 0 0 0 1px rgba(20,184,166,0.3), 0 4px 12px rgba(20,184,166,0.2);
-  }
-
-  .mnav-brand-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-
-  .mnav-brand-tag {
-    font-size: 10px;
-    font-weight: 600;
-    color: #14b8a6;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    line-height: 1;
-    margin-top: 3px;
-  }
-
-  /* ── NAV LINKS (desktop) ── */
-  .mnav-links {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    margin: 0 auto;
-    padding: 5px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-  }
-
-  .mnav-link {
-    position: relative;
-    font-size: 13px;
-    font-weight: 600;
-    color: #7a8fa8;
-    padding: 7px 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: color 0.18s;
-    white-space: nowrap;
-    border: 1px solid transparent;
-  }
-
-  .mnav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%) scaleX(0);
-    width: 16px;
-    height: 2px;
-    border-radius: 2px;
-    background: #14b8a6;
-    transition: transform 0.2s ease;
-  }
-
-  .mnav-link:hover {
-    color: #e2e8f0;
-  }
-
-  .mnav-link:hover::after {
-    transform: translateX(-50%) scaleX(1);
-  }
-
-  .mnav-link.active {
-    color: #fff;
-    background: rgba(20,184,166,0.15);
-    border-color: rgba(20,184,166,0.25);
-  }
-
-  .mnav-link.active::after {
-    transform: translateX(-50%) scaleX(1);
-  }
-
-  /* ── RIGHT PANEL ── */
-  .mnav-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
-  /* ── AVATAR DROPDOWN ── */
-  .mnav-avatar-wrap {
-    position: relative;
-  }
-
-  .mnav-avatar-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgba(20,184,166,0.1);
-    border: 1px solid rgba(20,184,166,0.28);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.18s, border-color 0.18s;
-  }
-
-  .mnav-avatar-btn:hover,
-  .mnav-avatar-btn[data-open="true"] {
-    background: rgba(20,184,166,0.2);
-    border-color: #14b8a6;
-  }
-
-  .mnav-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    background: #111e36;
-    border: 1px solid rgba(20,184,166,0.2);
-    border-radius: 14px;
-    padding: 6px;
-    min-width: 200px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    animation: mnav-drop-in 0.15s ease;
-    z-index: 200;
-  }
-
-  @keyframes mnav-drop-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .mnav-dd-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #94a3b8;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .mnav-dd-item:hover {
-    background: rgba(20,184,166,0.12);
-    color: #e2e8f0;
-  }
-
-  .mnav-dd-item.danger {
-    color: #f87171;
-  }
-
-  .mnav-dd-item.danger:hover {
-    background: rgba(248,113,113,0.1);
-    color: #fca5a5;
-  }
-
-  .mnav-dd-divider {
-    height: 1px;
-    background: rgba(20,184,166,0.12);
-    margin: 4px 0;
-  }
-
-  .mnav-dd-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
-    background: rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  /* ── HAMBURGER ── */
-  .mnav-hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4.5px;
-    width: 36px;
-    height: 36px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 9px;
-    padding: 8px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .mnav-hamburger span {
-    display: block;
-    height: 1.5px;
-    background: #94a3b8;
-    border-radius: 2px;
-    transition: transform 0.22s ease, opacity 0.22s ease, width 0.22s ease;
-    transform-origin: center;
-  }
-
-  .mnav-hamburger[data-open="true"] span:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-    background: #14b8a6;
-  }
-  .mnav-hamburger[data-open="true"] span:nth-child(2) {
-    opacity: 0;
-  }
-  .mnav-hamburger[data-open="true"] span:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-    background: #14b8a6;
-  }
-
-  /* ── MOBILE DRAWER ── */
-  .mnav-drawer {
-    background: #0c1428;
-    border-top: 1px solid rgba(20,184,166,0.12);
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .mnav-drawer[data-open="true"] {
-    max-height: 400px;
-  }
-
-  .mnav-drawer-inner {
-    padding: 12px 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .mnav-drawer-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #7a8fa8;
-    text-decoration: none;
-    border: 1px solid transparent;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-  }
-
-  .mnav-drawer-link:hover {
-    background: rgba(255,255,255,0.04);
-    color: #e2e8f0;
-  }
-
-  .mnav-drawer-link.active {
-    background: rgba(20,184,166,0.12);
-    border-color: rgba(20,184,166,0.25);
-    color: #fff;
-  }
-
-  .mnav-drawer-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    flex-shrink: 0;
-  }
-
-  .mnav-drawer-link.active .mnav-drawer-icon {
-    background: rgba(20,184,166,0.2);
-  }
-
-  .mnav-drawer-divider {
-    height: 1px;
-    background: rgba(20,184,166,0.1);
-    margin: 4px 0;
-  }
-
-  .mnav-drawer-action {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #7a8fa8;
-    background: none;
-    border: 1px solid transparent;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .mnav-drawer-action:hover {
-    background: rgba(255,255,255,0.04);
-    color: #e2e8f0;
-  }
-
-  .mnav-drawer-action.danger {
-    color: #f87171;
-  }
-
-  .mnav-drawer-action.danger:hover {
-    background: rgba(248,113,113,0.08);
-  }
-
-  /* ── LOGOUT MODAL ── */
-  .mnav-modal-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    animation: mnav-fade-in 0.15s ease;
-  }
-
-  @keyframes mnav-fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  .mnav-modal {
-    background: #111e36;
-    border: 1px solid rgba(20,184,166,0.2);
-    border-radius: 20px;
-    padding: 28px;
-    max-width: 360px;
-    width: 100%;
-    animation: mnav-modal-in 0.18s ease;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-  }
-
-  @keyframes mnav-modal-in {
-    from { opacity: 0; transform: scale(0.96) translateY(8px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .mnav-modal-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: rgba(248,113,113,0.12);
-    border: 1px solid rgba(248,113,113,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-bottom: 16px;
-  }
-
-  .mnav-modal-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin: 0 0 8px;
-  }
-
-  .mnav-modal-body {
-    font-size: 13px;
-    color: #64748b;
-    margin: 0 0 22px;
-    line-height: 1.6;
-  }
-
-  .mnav-modal-actions {
-    display: flex;
-    gap: 10px;
-  }
-
-  .mnav-modal-cancel {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #94a3b8;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .mnav-modal-cancel:hover {
-    background: rgba(255,255,255,0.09);
-    color: #e2e8f0;
-  }
-
-  .mnav-modal-confirm {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    background: #ef4444;
-    border: 1px solid rgba(239,68,68,0.4);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .mnav-modal-confirm:hover {
-    background: #dc2626;
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .mnav-links { display: none; }
-    .mnav-hamburger { display: flex; }
-    .mnav-avatar-wrap { display: none; }
-    .mnav-bar { padding: 0 16px; }
-  }
-
-  @media (min-width: 769px) {
-    .mnav-drawer { display: none; }
-  }
-`;
-
 const NAV_ITEMS = [
-  { to: "/medicalhome", label: "Home", icon: "🏠" },
-  { to: "/insertmedicine", label: "Add Medicine", icon: "➕" },
-  { to: "/showmedicine", label: "Medicines", icon: "💊" },
+  {
+    to: "/medicalhome",
+    label: "Home",
+    icon: "🏠",
+  },
+  {
+    to: "/insertmedicine",
+    label: "Add Medicine",
+    icon: "➕",
+  },
+  {
+    to: "/showmedicine",
+    label: "Medicines",
+    icon: "💊",
+  },
 ];
 
 const MedicalNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
   }, []);
-  
-const confirmLogout = async () => {
-  try {
-    await axios.get("https://medicine-finder-1-zwuu.onrender.com/logout");
 
+  // Close mobile drawer whenever route changes
+  useEffect(() => {
+    setDrawerOpen(false);
+    setDropdownOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scrolling when mobile drawer is open
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [drawerOpen]);
+
+  const handleNavigation = (path) => {
+    setDrawerOpen(false);
+    setDropdownOpen(false);
+    navigate(path);
+  };
+
+  const handleLogoutClick = () => {
+    setDrawerOpen(false);
+    setDropdownOpen(false);
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    if (logoutLoading) {
+      return;
+    }
+
+    try {
+      setLogoutLoading(true);
+
+      await axios.get(
+        "https://medicine-finder-1-zwuu.onrender.com/logout"
+      );
+
+      setShowLogoutModal(false);
+
+      // Show success toast
+      setShowLogoutToast(true);
+
+      // Give toast enough time to be visible
+      setTimeout(() => {
+        window.location.replace("/login");
+      }, 1800);
+
+    } catch (err) {
+      console.log(err);
+      setLogoutLoading(false);
+    }
+  };
+
+  const closeLogoutModal = () => {
     setShowLogoutModal(false);
-
-    window.location.replace("/login");
-  } catch (err) {
-    console.log(err);
-  }
-};
+  };
 
   return (
     <>
-      <style>{CSS}</style>
+      <style>{`
+                /* ==============================
+                   MEDICAL NAVBAR
+                ============================== */
+
+                .mnav-root,
+                .mnav-root * {
+                    box-sizing: border-box;
+                }
+
+                .mnav-root {
+                    width: 100%;
+                    position: sticky;
+                    top: 0;
+                    z-index: 1050;
+                    font-family: Arial, sans-serif;
+                }
+
+
+
+                                  /* ==============================
+                    LOGOUT SUCCESS TOAST
+                  ============================== */
+
+                  .mnav-toast {
+                      position: fixed;
+                      top: 78px;
+                      right: 20px;
+                      z-index: 3000;
+
+                      min-width: 290px;
+                      max-width: 380px;
+
+                      background: #ffffff;
+                      border: 1px solid #bbf7d0;
+                      border-left: 5px solid #16a34a;
+
+                      border-radius: 12px;
+
+                      padding: 14px 16px;
+
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+
+                      box-shadow:
+                          0 12px 35px rgba(15, 23, 42, 0.18);
+
+                      animation: mnavToastIn 0.3s ease;
+                  }
+
+                  .mnav-toast-icon {
+                      width: 36px;
+                      height: 36px;
+                      min-width: 36px;
+
+                      border-radius: 50%;
+
+                      background: #dcfce7;
+                      color: #15803d;
+
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+
+                      font-size: 18px;
+                      font-weight: 800;
+                  }
+
+                  .mnav-toast-content {
+                      min-width: 0;
+                  }
+
+                  .mnav-toast-title {
+                      color: #166534;
+                      font-size: 14px;
+                      font-weight: 800;
+                      margin-bottom: 2px;
+                  }
+
+                  .mnav-toast-text {
+                      color: #64748b;
+                      font-size: 12px;
+                      line-height: 1.4;
+                  }
+
+                  @keyframes mnavToastIn {
+                      from {
+                          opacity: 0;
+                          transform: translateX(30px);
+                      }
+
+                      to {
+                          opacity: 1;
+                          transform: translateX(0);
+                      }
+                  }
+
+                  @media (max-width: 500px) {
+
+                      .mnav-toast {
+                          top: 70px;
+                          left: 12px;
+                          right: 12px;
+                          min-width: auto;
+                          width: auto;
+                      }
+                  }
+
+
+
+                /* ==============================
+                   NAVBAR
+                ============================== */
+
+                .mnav-bar {
+                    width: 100%;
+                    min-height: 62px;
+                    background: #0c1428;
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                    padding: 0 24px;
+                    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+                }
+
+                /* ==============================
+                   BRAND
+                ============================== */
+
+                .mnav-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    min-width: 0;
+                    flex-shrink: 0;
+                    text-decoration: none;
+                    color: white;
+                    cursor: pointer;
+                }
+
+                .mnav-brand-icon {
+                    width: 40px;
+                    height: 40px;
+                    min-width: 40px;
+                    border-radius: 10px;
+                    background: #0ea5e9;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+                }
+
+                .mnav-brand-text {
+                    min-width: 0;
+                    line-height: 1.1;
+                }
+
+                .mnav-brand-name {
+                    color: white;
+                    font-size: 18px;
+                    font-weight: 700;
+                    white-space: nowrap;
+                }
+
+                .mnav-brand-tag {
+                    color: #94a3b8;
+                    font-size: 10px;
+                    margin-top: 3px;
+                    white-space: nowrap;
+                }
+
+                /* ==============================
+                   DESKTOP NAV LINKS
+                ============================== */
+
+                .mnav-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-left: 12px;
+                }
+
+                .mnav-link {
+                    min-height: 40px;
+                    display: flex;
+                    align-items: center;
+                    gap: 7px;
+                    padding: 0 13px;
+                    border-radius: 8px;
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    font-size: 14px;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    white-space: nowrap;
+                }
+
+                .mnav-link:hover {
+                    color: white;
+                    background: rgba(255, 255, 255, 0.08);
+                }
+
+                .mnav-link.active {
+                    color: white;
+                    background: #0ea5e9;
+                    box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2);
+                }
+
+                .mnav-link-icon {
+                    font-size: 16px;
+                    line-height: 1;
+                }
+
+                /* ==============================
+                   RIGHT SIDE
+                ============================== */
+
+                .mnav-right {
+                    margin-left: auto;
+                    display: flex;
+                    align-items: center;
+                    flex-shrink: 0;
+                }
+
+                /* ==============================
+                   AVATAR
+                ============================== */
+
+                .mnav-profile {
+                    position: relative;
+                }
+
+                .mnav-avatar-btn {
+                    width: 40px;
+                    height: 40px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #1e293b;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 19px;
+                    transition: 0.2s ease;
+                }
+
+                .mnav-avatar-btn:hover {
+                    background: #263449;
+                    transform: translateY(-1px);
+                }
+
+                /* ==============================
+                   DESKTOP DROPDOWN
+                ============================== */
+
+                .mnav-dropdown {
+                    position: absolute;
+                    top: calc(100% + 10px);
+                    right: 0;
+                    width: 205px;
+                    background: white;
+                    border-radius: 12px;
+                    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+                    padding: 7px;
+                    overflow: hidden;
+                    border: 1px solid #e2e8f0;
+                }
+
+                .mnav-dropdown-item {
+                    width: 100%;
+                    min-height: 44px;
+                    border: none;
+                    background: transparent;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 0 12px;
+                    color: #1e293b;
+                    font-size: 14px;
+                    cursor: pointer;
+                    text-align: left;
+                    transition: 0.2s ease;
+                }
+
+                .mnav-dropdown-item:hover {
+                    background: #f1f5f9;
+                }
+
+                .mnav-dropdown-item.logout {
+                    color: #dc2626;
+                }
+
+                .mnav-dropdown-item.logout:hover {
+                    background: #fef2f2;
+                }
+
+                /* ==============================
+                   HAMBURGER
+                ============================== */
+
+                .mnav-menu-btn {
+                    display: none;
+                    width: 40px;
+                    height: 40px;
+                    min-width: 40px;
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 9px;
+                    background: #17223a;
+                    color: white;
+                    cursor: pointer;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 21px;
+                    transition: 0.2s ease;
+                }
+
+                .mnav-menu-btn:hover {
+                    background: #24324e;
+                }
+
+                /* ==============================
+                   MOBILE DRAWER
+                ============================== */
+
+                .mnav-drawer {
+                    display: none;
+                    width: 100%;
+                    background: #101a31;
+                    border-top: 1px solid rgba(255, 255, 255, 0.08);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+                }
+
+                .mnav-drawer-inner {
+                    padding: 10px 14px 14px;
+                }
+
+                .mnav-mobile-link {
+                    width: 100%;
+                    min-height: 52px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 0 14px;
+                    margin-bottom: 5px;
+                    border-radius: 9px;
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    font-size: 15px;
+                    font-weight: 600;
+                    transition: 0.2s ease;
+                }
+
+                .mnav-mobile-link:hover {
+                    background: rgba(255, 255, 255, 0.07);
+                    color: white;
+                }
+
+                .mnav-mobile-link.active {
+                    background: #0ea5e9;
+                    color: white;
+                }
+
+                .mnav-mobile-icon {
+                    width: 24px;
+                    text-align: center;
+                    font-size: 18px;
+                }
+
+                .mnav-mobile-divider {
+                    height: 1px;
+                    background: rgba(255, 255, 255, 0.1);
+                    margin: 8px 0;
+                }
+
+                .mnav-mobile-action {
+                    width: 100%;
+                    min-height: 52px;
+                    border: none;
+                    background: transparent;
+                    border-radius: 9px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 0 14px;
+                    color: #cbd5e1;
+                    font-size: 15px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-align: left;
+                }
+
+                .mnav-mobile-action:hover {
+                    background: rgba(255, 255, 255, 0.07);
+                    color: white;
+                }
+
+                .mnav-mobile-action.logout {
+                    color: #fca5a5;
+                }
+
+                .mnav-mobile-action.logout:hover {
+                    background: rgba(220, 38, 38, 0.1);
+                }
+
+                /* ==============================
+                   LOGOUT MODAL
+                ============================== */
+
+                .mnav-modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 2000;
+                    background: rgba(0, 0, 0, 0.58);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+
+                .mnav-modal {
+                    width: 100%;
+                    max-width: 400px;
+                    background: white;
+                    border-radius: 16px;
+                    padding: 25px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    text-align: center;
+                }
+
+                .mnav-modal-icon {
+                    width: 52px;
+                    height: 52px;
+                    margin: 0 auto 14px;
+                    border-radius: 50%;
+                    background: #fef2f2;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                }
+
+                .mnav-modal-title {
+                    margin: 0 0 8px;
+                    color: #0f172a;
+                    font-size: 20px;
+                    font-weight: 700;
+                }
+
+                .mnav-modal-text {
+                    margin: 0 0 22px;
+                    color: #64748b;
+                    font-size: 14px;
+                    line-height: 1.5;
+                }
+
+                .mnav-modal-actions {
+                    display: flex;
+                    gap: 10px;
+                    justify-content: center;
+                }
+
+                .mnav-modal-btn {
+                    min-height: 42px;
+                    padding: 0 18px;
+                    border-radius: 8px;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+
+                .mnav-modal-cancel {
+                    background: #e2e8f0;
+                    color: #334155;
+                }
+
+                .mnav-modal-cancel:hover {
+                    background: #cbd5e1;
+                }
+
+                .mnav-modal-confirm {
+                    background: #dc2626;
+                    color: white;
+                }
+
+                .mnav-modal-confirm:hover {
+                    background: #b91c1c;
+                }
+
+                .mnav-modal-confirm:disabled {
+                    opacity: 0.65;
+                    cursor: not-allowed;
+                }
+
+                /* ==============================
+                   TABLET
+                ============================== */
+
+                @media (max-width: 900px) {
+                    .mnav-bar {
+                        padding: 0 18px;
+                        gap: 14px;
+                    }
+
+                    .mnav-links {
+                        gap: 2px;
+                        margin-left: 4px;
+                    }
+
+                    .mnav-link {
+                        padding: 0 9px;
+                        font-size: 13px;
+                    }
+
+                    .mnav-link-icon {
+                        font-size: 15px;
+                    }
+                }
+
+                /* ==============================
+                   MOBILE
+                ============================== */
+
+                @media (max-width: 768px) {
+                    .mnav-bar {
+                        min-height: 60px;
+                        padding: 0 14px;
+                        gap: 10px;
+                    }
+
+                    .mnav-links {
+                        display: none;
+                    }
+
+                    .mnav-profile {
+                        display: none;
+                    }
+
+                    .mnav-menu-btn {
+                        display: flex;
+                    }
+
+                    .mnav-drawer {
+                        display: block;
+                    }
+
+                    .mnav-brand {
+                        flex: 1;
+                        min-width: 0;
+                    }
+
+                    .mnav-brand-name {
+                        font-size: 17px;
+                    }
+
+                    .mnav-brand-tag {
+                        font-size: 9px;
+                    }
+
+                    .mnav-right {
+                        margin-left: 0;
+                    }
+                }
+
+                /* ==============================
+                   SMALL MOBILE
+                ============================== */
+
+                @media (max-width: 400px) {
+                    .mnav-bar {
+                        padding: 0 10px;
+                    }
+
+                    .mnav-brand-icon {
+                        width: 36px;
+                        height: 36px;
+                        min-width: 36px;
+                        font-size: 18px;
+                    }
+
+                    .mnav-brand-name {
+                        font-size: 15px;
+                    }
+
+                    .mnav-brand-tag {
+                        font-size: 8px;
+                    }
+
+                    .mnav-menu-btn {
+                        width: 38px;
+                        height: 38px;
+                        min-width: 38px;
+                    }
+
+                    .mnav-drawer-inner {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                    }
+
+                    .mnav-modal {
+                        padding: 20px 16px;
+                    }
+
+                    .mnav-modal-actions {
+                        flex-direction: column-reverse;
+                    }
+
+                    .mnav-modal-btn {
+                        width: 100%;
+                    }
+                }
+
+                /* ==============================
+                   VERY SMALL DEVICES
+                ============================== */
+
+                @media (max-width: 340px) {
+                    .mnav-brand-tag {
+                        display: none;
+                    }
+
+                    .mnav-brand-name {
+                        font-size: 14px;
+                    }
+                }
+            `}</style>
 
       <nav className="mnav-root">
-        {/* ── TOP BAR ── */}
+        {/* ==============================
+                    TOP NAVBAR
+                ============================== */}
         <div className="mnav-bar">
 
           {/* Brand */}
-          <Link to="/medicalhome" className="mnav-brand">
-            <div className="mnav-brand-icon">🧪</div>
-            <div>
-              <div className="mnav-brand-name">Medicine Finder</div>
-              <div className="mnav-brand-tag">Inventory System</div>
+          <div
+            className="mnav-brand"
+            onClick={() => handleNavigation("/medicalhome")}
+          >
+            <div className="mnav-brand-icon">
+              💊
             </div>
-          </Link>
 
-          {/* Desktop nav links */}
+            <div className="mnav-brand-text">
+              <div className="mnav-brand-name">
+                Medicine Finder
+              </div>
+
+              <div className="mnav-brand-tag">
+                Medical Store Panel
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Links */}
           <div className="mnav-links">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  "mnav-link" + (isActive ? " active" : "")
+                  `mnav-link ${isActive ? "active" : ""
+                  }`
                 }
               >
-                {item.label}
+                <span className="mnav-link-icon">
+                  {item.icon}
+                </span>
+
+                <span>{item.label}</span>
               </NavLink>
             ))}
           </div>
 
-          {/* Right panel */}
+          {/* Right Side */}
           <div className="mnav-right">
-            {/* Avatar dropdown (desktop) */}
-            <div className="mnav-avatar-wrap" ref={dropdownRef}>
+
+            {/* Desktop Profile */}
+            <div
+              className="mnav-profile"
+              ref={dropdownRef}
+            >
               <button
+                type="button"
                 className="mnav-avatar-btn"
-                data-open={dropdownOpen}
-                onClick={() => setDropdownOpen((v) => !v)}
-                aria-label="Account menu"
+                onClick={() =>
+                  setDropdownOpen(
+                    !dropdownOpen
+                  )
+                }
+                aria-label="Open account menu"
+                aria-expanded={dropdownOpen}
               >
-                🩺
+                👤
               </button>
 
               {dropdownOpen && (
                 <div className="mnav-dropdown">
-                  <Link
-                    to="/updatemedicalpassword"
-                    className="mnav-dd-item"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <div className="mnav-dd-icon">🔐</div>
-                    Change password
-                  </Link>
-                  <div className="mnav-dd-divider" />
+
                   <button
-                    className="mnav-dd-item danger"
-                    onClick={() => { setDropdownOpen(false); setShowLogoutModal(true); }}
+                    type="button"
+                    className="mnav-dropdown-item"
+                    onClick={() =>
+                      handleNavigation(
+                        "/medicalchangepassword"
+                      )
+                    }
                   >
-                    <div className="mnav-dd-icon">🚪</div>
-                    Log out
+                    🔐
+                    <span>
+                      Change Password
+                    </span>
                   </button>
+
+                  <button
+                    type="button"
+                    className="mnav-dropdown-item logout"
+                    onClick={handleLogoutClick}
+                  >
+                    🚪
+                    <span>
+                      Log Out
+                    </span>
+                  </button>
+
                 </div>
               )}
             </div>
 
-            {/* Hamburger (mobile) */}
+            {/* Mobile Hamburger */}
             <button
-              className="mnav-hamburger"
-              data-open={drawerOpen}
-              onClick={() => setDrawerOpen((v) => !v)}
-              aria-label="Toggle menu"
+              type="button"
+              className="mnav-menu-btn"
+              onClick={() =>
+                setDrawerOpen(!drawerOpen)
+              }
+              aria-label={
+                drawerOpen
+                  ? "Close menu"
+                  : "Open menu"
+              }
+              aria-expanded={drawerOpen}
             >
-              <span /><span /><span />
+              {drawerOpen ? "✕" : "☰"}
             </button>
           </div>
         </div>
 
-        {/* ── MOBILE DRAWER ── */}
-        <div className="mnav-drawer" data-open={drawerOpen}>
-          <div className="mnav-drawer-inner">
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  "mnav-drawer-link" + (isActive ? " active" : "")
+        {/* ==============================
+                    MOBILE DRAWER
+                ============================== */}
+        {drawerOpen && (
+          <div className="mnav-drawer">
+            <div className="mnav-drawer-inner">
+
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `mnav-mobile-link ${isActive
+                      ? "active"
+                      : ""
+                    }`
+                  }
+                >
+                  <span className="mnav-mobile-icon">
+                    {item.icon}
+                  </span>
+
+                  <span>
+                    {item.label}
+                  </span>
+                </NavLink>
+              ))}
+
+              <div className="mnav-mobile-divider"></div>
+
+              <button
+                type="button"
+                className="mnav-mobile-action"
+                onClick={() =>
+                  handleNavigation(
+                    "/medicalchangepassword"
+                  )
                 }
-                onClick={() => setDrawerOpen(false)}
               >
-                <div className="mnav-drawer-icon">{item.icon}</div>
-                {item.label}
-              </NavLink>
-            ))}
+                <span className="mnav-mobile-icon">
+                  🔐
+                </span>
 
-            <div className="mnav-drawer-divider" />
+                <span>
+                  Change Password
+                </span>
+              </button>
 
-            <button
-              className="mnav-drawer-action"
-              onClick={() => { setDrawerOpen(false); navigate("/updatemedicalpassword"); }}
-            >
-              <div className="mnav-drawer-icon">🔐</div>
-              Change password
-            </button>
+              <button
+                type="button"
+                className="mnav-mobile-action logout"
+                onClick={handleLogoutClick}
+              >
+                <span className="mnav-mobile-icon">
+                  🚪
+                </span>
 
-            <button
-              className="mnav-drawer-action danger"
-              onClick={() => { setDrawerOpen(false); setShowLogoutModal(true); }}
-            >
-              <div className="mnav-drawer-icon">🚪</div>
-              Log out
-            </button>
+                <span>
+                  Log Out
+                </span>
+              </button>
+
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
-      {/* ── LOGOUT MODAL ── */}
+
+
+
+      {/* ==============================
+    LOGOUT SUCCESS TOAST
+================================ */}
+
+      {showLogoutToast && (
+        <div className="mnav-toast">
+
+          <div className="mnav-toast-icon">
+            ✓
+          </div>
+
+          <div className="mnav-toast-content">
+
+            <div className="mnav-toast-title">
+              Logout Successful
+            </div>
+
+            <div className="mnav-toast-text">
+              You have been successfully logged out.
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+
+
+      {/* ==============================
+                LOGOUT MODAL
+            ============================== */}
       {showLogoutModal && (
-        <div className="mnav-modal-bg" onClick={() => setShowLogoutModal(false)}>
-          <div className="mnav-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="mnav-modal-icon">🚪</div>
-            <h2 className="mnav-modal-title">Log out?</h2>
-            <p className="mnav-modal-body">
-              You'll be returned to the login screen. Any unsaved changes will be lost.
+        <div
+          className="mnav-modal-overlay"
+          onClick={closeLogoutModal}
+        >
+          <div
+            className="mnav-modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+            <div className="mnav-modal-icon">
+              🚪
+            </div>
+
+            <h3 className="mnav-modal-title">
+              Logout
+            </h3>
+
+            <p className="mnav-modal-text">
+              Are you sure you want to logout
+              from your medical account?
             </p>
+
             <div className="mnav-modal-actions">
-              <button className="mnav-modal-cancel" onClick={() => setShowLogoutModal(false)}>
+
+              <button
+                type="button"
+                className="mnav-modal-btn mnav-modal-cancel"
+                onClick={closeLogoutModal}
+              >
                 Cancel
               </button>
-              <button className="mnav-modal-confirm" onClick={confirmLogout}>
-                Log out
+
+              <button
+                type="button"
+                className="mnav-modal-btn mnav-modal-confirm"
+                onClick={confirmLogout}
+                disabled={logoutLoading}
+              >
+                {logoutLoading ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    />
+
+                    Logging out...
+                  </>
+                ) : (
+                  "Yes, Logout"
+                )}
               </button>
+
             </div>
           </div>
         </div>

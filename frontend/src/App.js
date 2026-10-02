@@ -65,7 +65,7 @@ function App() {
         <Route path='/editmedicine/:id' element={<EditMedicine />} />
         <Route path='/deletemedicine/:id' element={<DeleteMedicine />} />
         <Route path='/updatepassword' element={<UpdatePassword />} />
-        <Route path='/updatemedicalpassword' element={<UpdateMedicalPassw />} />
+        <Route path='/medicalchangepassword' element={<UpdateMedicalPassw />} />
 
 
       </Routes>
