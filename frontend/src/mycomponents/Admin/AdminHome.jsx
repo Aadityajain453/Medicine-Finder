@@ -461,28 +461,7 @@ const ModuleCard = ({
   </div>
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Activity Item
-// ─────────────────────────────────────────────────────────────────────────────
 
-const ActivityItem = ({ color, text, time }) => (
-  <div style={styles.activityRow}>
-    <div
-      style={{
-        ...styles.activityDot,
-        background: color,
-      }}
-    />
-
-    <span style={styles.activityText}>
-      {text}
-    </span>
-
-    <span style={styles.activityTime}>
-      {time}
-    </span>
-  </div>
-);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Component
@@ -618,10 +597,6 @@ const AdminHome = () => {
       : "8px 20px 12px",
   };
 
-  const responsiveActivityCard = {
-    ...styles.activityCard,
-    padding: isMobile ? "16px" : "20px",
-  };
 
   // ───────────────────────────────────────────────────────────────────────────
   // Authentication + profile
