@@ -212,6 +212,7 @@ const PAGE_CSS = `
 
   .mr-input-wrapper{
     position:relative;
+    width:100%;
   }
 
   .mr-input{
@@ -226,6 +227,12 @@ const PAGE_CSS = `
     font-weight:500;
     transition:0.3s;
     outline:none;
+    box-sizing:border-box;
+  }
+
+  .mr-input::placeholder{
+    color:#94a3b8;
+    font-weight:400;
   }
 
   .mr-input:hover{
@@ -242,6 +249,7 @@ const PAGE_CSS = `
 
   .mr-password{
     letter-spacing:2px;
+    padding-right:55px;
   }
 
   .mr-password-toggle{
@@ -250,9 +258,21 @@ const PAGE_CSS = `
     right:16px;
     transform:translateY(-50%);
     border:none;
-    background:none;
+    background:transparent;
     color:#64748b;
     cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    border-radius:8px;
+    transition:0.2s;
+  }
+
+  .mr-password-toggle:hover{
+    background:#f1f5f9;
+    color:#0f172a;
   }
 
   .mr-divider{
@@ -365,6 +385,16 @@ const PAGE_CSS = `
     .mr-sidebar h2{
       font-size:26px;
     }
+
+    .mr-input{
+      height:56px;
+      border-radius:16px;
+    }
+
+    .mr-submit-btn{
+      height:58px;
+      border-radius:16px;
+    }
   }
 `;
 
@@ -380,18 +410,34 @@ const Icon = ({ name, size = 15, style = {} }) => (
 );
 
 const EyeOpen = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
     <circle cx="12" cy="12" r="3"></circle>
   </svg>
 );
 
 const EyeClosed = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20
       c-7 0-10-7-10-7a19.79 19.79 0 0 1 2.1-3.6">
     </path>
@@ -429,44 +475,59 @@ const InputField = ({
   inputRef,
   onChange,
   full = false,
+  maxLength,
+  inputMode,
 }) => {
 
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = type === "password";
 
+  const actualType = isPassword
+    ? showPassword
+      ? "text"
+      : "password"
+    : type;
+
   return (
     <div className={full ? "mr-full" : ""}>
-      <label className="mr-label">{label} *</label>
+
+      <label className="mr-label">
+        {label} *
+      </label>
 
       <div className="mr-input-wrapper">
 
         <input
           ref={inputRef}
-          type={
-            isPassword
-              ? showPassword ? "text" : "password"
-              : type
-          }
+          type={actualType}
           value={value}
           placeholder={placeholder}
           onChange={onChange}
-          className={`mr-input ${isPassword ? "mr-password" : ""}`}
-          style={isPassword ? { paddingRight: "50px" } : {}}
+          maxLength={maxLength}
+          inputMode={inputMode}
+          className={`mr-input ${
+            isPassword ? "mr-password" : ""
+          }`}
         />
 
         {isPassword && (
           <button
             type="button"
             className="mr-password-toggle"
-            onMouseEnter={() => setShowPassword(true)}
-            onMouseLeave={() => setShowPassword(false)}
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={
+              showPassword
+                ? "Hide password"
+                : "Show password"
+            }
           >
             {showPassword ? <EyeOpen /> : <EyeClosed />}
           </button>
         )}
 
       </div>
+
     </div>
   );
 };
@@ -514,7 +575,7 @@ const MedicalReg = () => {
     verifyUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const verifyUser = async () => {
 
     try {
@@ -552,48 +613,213 @@ const MedicalReg = () => {
 
   const validate = () => {
 
-    if (!medicalname) {
-      showError("Please enter medical name.", medicalRef);
+    const mednm = medicalname.trim();
+    const ownnm = ownername.trim();
+    const addr = address.trim();
+    const cont = contact.trim();
+    const lno = licno.trim();
+    const eml = email.trim().toLowerCase();
+
+    // Medical Store Name
+
+    if (!mednm) {
+      showError(
+        "Please enter medical store name",
+        medicalRef
+      );
       return false;
     }
 
-    if (!ownername) {
-      showError("Please enter owner name.", ownerRef);
+    if (mednm.length < 2 || mednm.length > 100) {
+      showError(
+        "Medical store name must be between 2 and 100 characters",
+        medicalRef
+      );
       return false;
     }
 
-    if (!contact) {
-      showError("Please enter contact number.", contactRef);
+    if (!/^[A-Za-z0-9][A-Za-z0-9 .&'()-]*$/.test(mednm)) {
+      showError(
+        "Please enter a valid medical store name",
+        medicalRef
+      );
       return false;
     }
 
-    if (!licno) {
-      showError("Please enter licence number.", licnoRef);
+    // Owner Name
+
+    if (!ownnm) {
+      showError(
+        "Please enter owner name",
+        ownerRef
+      );
       return false;
     }
 
-    if (!address) {
-      showError("Please enter address.", addressRef);
+    if (ownnm.length < 2 || ownnm.length > 50) {
+      showError(
+        "Owner name must be between 2 and 50 characters",
+        ownerRef
+      );
       return false;
     }
 
-    if (!email) {
-      showError("Please enter email.", emailRef);
+    if (!/^[A-Za-z][A-Za-z .'-]*$/.test(ownnm)) {
+      showError(
+        "Please enter a valid owner name",
+        ownerRef
+      );
       return false;
     }
+
+    // Contact
+
+    if (!cont) {
+      showError(
+        "Please enter contact number",
+        contactRef
+      );
+      return false;
+    }
+
+    if (!/^[6-9][0-9]{9}$/.test(cont)) {
+      showError(
+        "Please enter a valid 10-digit contact number",
+        contactRef
+      );
+      return false;
+    }
+
+    // Licence Number
+
+    if (!lno) {
+      showError(
+        "Please enter licence number",
+        licnoRef
+      );
+      return false;
+    }
+
+    if (lno.length < 3 || lno.length > 50) {
+      showError(
+        "Licence number must be between 3 and 50 characters",
+        licnoRef
+      );
+      return false;
+    }
+
+    if (!/^[A-Za-z0-9/-]+$/.test(lno)) {
+      showError(
+        "Please enter a valid licence number",
+        licnoRef
+      );
+      return false;
+    }
+
+    // Address
+
+    if (!addr) {
+      showError(
+        "Please enter address",
+        addressRef
+      );
+      return false;
+    }
+
+    if (addr.length < 5 || addr.length > 200) {
+      showError(
+        "Address must be between 5 and 200 characters",
+        addressRef
+      );
+      return false;
+    }
+
+    // Email
+
+    if (!eml) {
+      showError(
+        "Please enter email address",
+        emailRef
+      );
+      return false;
+    }
+
+    const emailRegex =
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(eml)) {
+      showError(
+        "Please enter a valid email address",
+        emailRef
+      );
+      return false;
+    }
+
+    // Password
 
     if (!password) {
-      showError("Please enter password.", passwordRef);
+      showError(
+        "Please enter password",
+        passwordRef
+      );
       return false;
     }
 
+    if (password.length < 8 || password.length > 50) {
+      showError(
+        "Password must be between 8 and 50 characters",
+        passwordRef
+      );
+      return false;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      showError(
+        "Password must contain at least one uppercase letter",
+        passwordRef
+      );
+      return false;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      showError(
+        "Password must contain at least one lowercase letter",
+        passwordRef
+      );
+      return false;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      showError(
+        "Password must contain at least one number",
+        passwordRef
+      );
+      return false;
+    }
+
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      showError(
+        "Password must contain at least one special character",
+        passwordRef
+      );
+      return false;
+    }
+
+    // Confirm Password
+
     if (!confirmpassword) {
-      showError("Please confirm password.", confirmRef);
+      showError(
+        "Please confirm your password",
+        confirmRef
+      );
       return false;
     }
 
     if (password !== confirmpassword) {
-      showError("Passwords do not match.", confirmRef);
+      showError(
+        "Password and confirm password do not match",
+        confirmRef
+      );
       return false;
     }
 
@@ -602,33 +828,51 @@ const MedicalReg = () => {
 
   // ─────────────────────────────────────
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
 
-    if (!validate()) return;
+    e.preventDefault();
 
-    setIsSubmitting(true);
+    if (!validate()) {
+      return;
+    }
 
     try {
+
+      setIsSubmitting(true);
+
+      setStatusMsg({
+        type: "",
+        text: "",
+      });
+
+      const mednm = medicalname.trim();
+      const ownnm = ownername.trim();
+      const addr = address.trim();
+      const cont = contact.trim();
+      const lno = licno.trim();
+      const eml = email.trim().toLowerCase();
 
       const { data } = await axios.post(
         "https://medicine-finder-1-zwuu.onrender.com/getmedicalreg",
         {
-          medicalname,
-          ownername,
-          address,
-          contact,
-          licno,
-          email,
-          password,
+          medicalname: mednm,
+          ownername: ownnm,
+          address: addr,
+          contact: cont,
+          licno: lno,
+          email: eml,
+          password: password,
         }
       );
 
-      if (data.success === true) {
+      if (data.success) {
 
         setStatusMsg({
           type: "success",
-          text: "Medical store registered successfully!",
+          text: data.Message,
         });
+
+        // Clear all fields
 
         setMedicalName("");
         setOwnerName("");
@@ -650,9 +894,16 @@ const MedicalReg = () => {
 
     } catch (error) {
 
+      console.error(
+        "Medical Registration Error:",
+        error
+      );
+
       setStatusMsg({
         type: "danger",
-        text: "Something went wrong.",
+        text:
+          error.response?.data?.Message ||
+          "Something went wrong please try-again",
       });
 
     } finally {
@@ -665,6 +916,7 @@ const MedicalReg = () => {
           text: "",
         });
       }, 3000);
+
     }
   };
 
@@ -704,14 +956,18 @@ const MedicalReg = () => {
               <div style={{ marginTop: "40px" }}>
 
                 <div className="mr-logo-box">
+
                   <Icon
                     name="building-hospital"
                     size={34}
                     style={{ color: "#fff" }}
                   />
+
                 </div>
 
-                <h2>Medical Registration</h2>
+                <h2>
+                  Medical Registration
+                </h2>
 
                 <p>
                   Securely onboard and manage licensed medical
@@ -722,23 +978,35 @@ const MedicalReg = () => {
                 <div className="mr-checklist">
 
                   <div className="mr-check">
+
                     <Icon name="check" />
+
                     Medical store verification
+
                   </div>
 
                   <div className="mr-check">
+
                     <Icon name="check" />
+
                     Licence management system
+
                   </div>
 
                   <div className="mr-check">
+
                     <Icon name="check" />
+
                     Owner & pharmacy records
+
                   </div>
 
                   <div className="mr-check">
+
                     <Icon name="check" />
+
                     Secure credential protection
+
                   </div>
 
                 </div>
@@ -756,11 +1024,19 @@ const MedicalReg = () => {
             <div className="mr-form-head">
 
               <div className="mr-tag">
-                <Icon name="plus" size={13} />
+
+                <Icon
+                  name="plus"
+                  size={13}
+                />
+
                 New Medical Store
+
               </div>
 
-              <h4>Create Medical Account</h4>
+              <h4>
+                Create Medical Account
+              </h4>
 
               <p>
                 Enter all required medical store details carefully
@@ -779,6 +1055,7 @@ const MedicalReg = () => {
               <InputField
                 label="Medical Name"
                 value={medicalname}
+                maxLength={100}
                 inputRef={medicalRef}
                 placeholder="e.g. City Wellness Pharma"
                 onChange={(e) => {
@@ -790,6 +1067,7 @@ const MedicalReg = () => {
               <InputField
                 label="Owner Name"
                 value={ownername}
+                maxLength={50}
                 inputRef={ownerRef}
                 placeholder="Full legal owner name"
                 onChange={(e) => {
@@ -802,17 +1080,25 @@ const MedicalReg = () => {
                 label="Contact Number"
                 type="tel"
                 value={contact}
+                placeholder="Enter 10 digit contact number"
                 inputRef={contactRef}
-                placeholder="+91 XXXXX XXXXX"
+                inputMode="numeric"
+                maxLength={10}
                 onChange={(e) => {
-                  setContact(e.target.value);
+
+                  const value =
+                    e.target.value.replace(/\D/g, "");
+
+                  setContact(value);
                   clearMsg();
+
                 }}
               />
 
               <InputField
                 label="Licence Number"
                 value={licno}
+                maxLength={50}
                 inputRef={licnoRef}
                 placeholder="DL-XXXX-XXXX"
                 onChange={(e) => {
@@ -824,6 +1110,7 @@ const MedicalReg = () => {
               <InputField
                 label="Address"
                 value={address}
+                maxLength={200}
                 inputRef={addressRef}
                 placeholder="Street, Area, City, Pincode"
                 onChange={(e) => {
@@ -837,6 +1124,7 @@ const MedicalReg = () => {
                 label="Email Address"
                 type="email"
                 value={email}
+                maxLength={100}
                 inputRef={emailRef}
                 placeholder="store@example.com"
                 onChange={(e) => {
@@ -852,6 +1140,7 @@ const MedicalReg = () => {
                 label="Password"
                 type="password"
                 value={password}
+                maxLength={50}
                 inputRef={passwordRef}
                 placeholder="••••••••"
                 onChange={(e) => {
@@ -864,6 +1153,7 @@ const MedicalReg = () => {
                 label="Confirm Password"
                 type="password"
                 value={confirmpassword}
+                maxLength={50}
                 inputRef={confirmRef}
                 placeholder="••••••••"
                 onChange={(e) => {
@@ -887,7 +1177,10 @@ const MedicalReg = () => {
                     </>
                   ) : (
                     <>
-                      <Icon name="user-plus" size={17} />
+                      <Icon
+                        name="user-plus"
+                        size={17}
+                      />
                       Register Medical Store
                     </>
                   )}

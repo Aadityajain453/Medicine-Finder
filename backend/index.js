@@ -511,22 +511,190 @@ app.post('/getadminreg', async (req, res) => {
     }
 });
 
-// Here is we get medical registration data 
+/// Here we get medical registration data
 app.post('/getmedicalreg', async (req, res) => {
     try {
         console.log("Received Data : ", req.body);
 
-        const mednm = req.body.medicalname.trim();
-        const ownnm = req.body.ownername.trim();
-        const addr = req.body.address.trim();
-        const cont = req.body.contact.trim();
-        const lno = req.body.licno.trim();
-        const eml = req.body.email.trim().toLowerCase();
-        const pass = req.body.password;
+        const {
+            medicalname,
+            ownername,
+            address,
+            contact,
+            licno,
+            email,
+            password
+        } = req.body;
+
+        // =========================
+        // Required Field Validation
+        // =========================
+
+        if (
+            !medicalname ||
+            !ownername ||
+            !address ||
+            !contact ||
+            !licno ||
+            !email ||
+            !password
+        ) {
+            return res.json({
+                success: false,
+                Message: "All fields are required"
+            });
+        }
+
+        // =========================
+        // Trim & Normalize Data
+        // =========================
+
+        const mednm = medicalname.trim();
+        const ownnm = ownername.trim();
+        const addr = address.trim();
+        const cont = contact.trim();
+        const lno = licno.trim();
+        const eml = email.trim().toLowerCase();
+        const pass = password;
+
         const utype = "medical";
 
-        // Check email in LoginData
-        const existingEmail = await LoginData.findOne({ Email: eml });
+        // =========================
+        // Medical Store Name
+        // =========================
+
+        if (mednm.length < 2 || mednm.length > 100) {
+            return res.json({
+                success: false,
+                Message: "Medical store name must be between 2 and 100 characters"
+            });
+        }
+
+        if (!/^[A-Za-z0-9][A-Za-z0-9 .&'()-]*$/.test(mednm)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid medical store name"
+            });
+        }
+
+        // =========================
+        // Owner Name
+        // =========================
+
+        if (ownnm.length < 2 || ownnm.length > 50) {
+            return res.json({
+                success: false,
+                Message: "Owner name must be between 2 and 50 characters"
+            });
+        }
+
+        if (!/^[A-Za-z][A-Za-z .'-]*$/.test(ownnm)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid owner name"
+            });
+        }
+
+        // =========================
+        // Address
+        // =========================
+
+        if (addr.length < 5 || addr.length > 200) {
+            return res.json({
+                success: false,
+                Message: "Address must be between 5 and 200 characters"
+            });
+        }
+
+        // =========================
+        // Contact Number
+        // =========================
+
+        if (!/^[6-9][0-9]{9}$/.test(cont)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid 10-digit contact number"
+            });
+        }
+
+        // =========================
+        // Licence Number
+        // =========================
+
+        if (lno.length < 3 || lno.length > 50) {
+            return res.json({
+                success: false,
+                Message: "Licence number must be between 3 and 50 characters"
+            });
+        }
+
+        if (!/^[A-Za-z0-9/-]+$/.test(lno)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid licence number"
+            });
+        }
+
+        // =========================
+        // Email
+        // =========================
+
+        const emailRegex =
+            /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+        if (!emailRegex.test(eml)) {
+            return res.json({
+                success: false,
+                Message: "Please enter a valid email address"
+            });
+        }
+
+        // =========================
+        // Password
+        // =========================
+
+        if (pass.length < 8 || pass.length > 50) {
+            return res.json({
+                success: false,
+                Message: "Password must be between 8 and 50 characters"
+            });
+        }
+
+        if (!/[A-Z]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one uppercase letter"
+            });
+        }
+
+        if (!/[a-z]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one lowercase letter"
+            });
+        }
+
+        if (!/[0-9]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one number"
+            });
+        }
+
+        if (!/[^A-Za-z0-9]/.test(pass)) {
+            return res.json({
+                success: false,
+                Message: "Password must contain at least one special character"
+            });
+        }
+
+        // =========================
+        // Check Duplicate Email
+        // =========================
+
+        const existingEmail = await LoginData.findOne({
+            Email: eml
+        });
 
         if (existingEmail) {
             return res.json({
@@ -534,6 +702,25 @@ app.post('/getmedicalreg', async (req, res) => {
                 Message: "Email already registered"
             });
         }
+
+        // =========================
+        // Check Duplicate Licence
+        // =========================
+
+        const existingLicence = await MedicalData.findOne({
+            LicenceNumber: lno
+        });
+
+        if (existingLicence) {
+            return res.json({
+                success: false,
+                Message: "Licence number already registered"
+            });
+        }
+
+        // =========================
+        // Create Medical Data
+        // =========================
 
         const meddata = new MedicalData({
             Medicalname: mednm,
@@ -544,6 +731,10 @@ app.post('/getmedicalreg', async (req, res) => {
             Email: eml
         });
 
+        // =========================
+        // Create Login Data
+        // =========================
+
         const logdata = new LoginData({
             Email: eml,
             Password: pass,
@@ -552,6 +743,10 @@ app.post('/getmedicalreg', async (req, res) => {
 
         const Result = await meddata.save();
         const Result2 = await logdata.save();
+
+        // =========================
+        // Success Response
+        // =========================
 
         if (Result && Result2) {
             return res.json({

@@ -388,7 +388,7 @@ const About = () => {
             {/* Founder Card */}
             <div className="ma-team-card">
               <div className="ma-avatar-placeholder">👤</div>
-              <div className="ma-team-name">Vikram Singh</div>
+              <div className="ma-team-name">Aditya Jain</div>
               <div className="ma-team-role">Founder & Visionary</div>
               <p style={{ fontSize: "14px", color: "#64748b", lineHeight: "22px" }}>
                 Oversees project strategy, resource optimization, and localized pharmacy integrations to ensure consistent data verification across the platform.
